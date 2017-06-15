@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLispProfiler", "VLispProfiler\VLispProfiler.csproj", "{B362C447-254C-432E-8E4D-0727E86BD83C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLispProfiler.Tests", "VLispProfiler.Tests\VLispProfiler.Tests.csproj", "{91870D72-0194-4173-BDED-CBBD9031EFDC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B362C447-254C-432E-8E4D-0727E86BD83C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B362C447-254C-432E-8E4D-0727E86BD83C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B362C447-254C-432E-8E4D-0727E86BD83C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B362C447-254C-432E-8E4D-0727E86BD83C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
