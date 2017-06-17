@@ -1,6 +1,18 @@
 (setq prof:file nil)
 (setq prof:symbols nil)
 (setq prof:indent "")
+(setq prof:exe "vlisp-profiler.exe")
+
+(defun prof:get-exe ()
+  (if (and prof:exe (findfile prof:exe))
+    prof:exe
+    (setq prof:exe (getfiled "Find vlisp-profiler.exe" "vlisp-profiler.exe" "exe" 0))
+    )
+  )
+
+(defun prof:file-path (path)
+  (strcat "\"" path "\"")
+  )
 
 (defun prof:str-pad-left (value digits char)
   (if (< (strlen value) digits)
@@ -39,7 +51,7 @@
   )
 
 (if (findfile "prof.dll")
-  (command "netload" "prof.dll") ;; contains prof:elapsed
+  (command "netload" "prof.dll") ;; hopefully contains prof:elapsed
   )
 
 (defun prof:write-trace (trac)
@@ -63,16 +75,47 @@
   value
   )
 
-(defun c:prof ( / path func)
+(defun c:prof ( / path path-prof func func-sym args)
   (setq path (getfiled "Select LISP file" "" "lsp" 0))
   (if path
     (progn
-      (setq func (getstring nil "function (or leave empty for load exec): "))
-      (if (= func "")
+      (setq func nil
+	    func-name (read (getstring nil "function name (empty for load exec): "))
+	    )
+      (if (not (vl-symbolp func-sym))
 	(progn
-	  
+	  (setq func-sym nil)
+	  (princ "warn: function name not a symbol")
+	  )
+	)
+
+      (setq args (strcat "-f" " " (prof:file-path path)))
+      (if func-sym
+	(setq args (strcat args " " "-s 1:Load 2:Run"))
+	(setq args (strcat args " " "-s 1:LoadRun"))
+	)
+
+      (startapp (prof:get-exe) args)
+
+      (getstring nil "type go!")
+
+      (if func-sym
+	(progn
+	  ;; Load
 	  (prof:in "1")
-	  (prof:out (load path))
+	  (load path)
+	  (prof:out nil)
+
+	  ;; Run
+	  (prof:in "2")
+	  ((vl-symbol-value func-sym))
+	  (prof:out nil)
+	  )
+	(progn
+	  ;; LoadRun
+	  (prof:in "1")
+	  (load path)
+	  (prof:out nil)
 	  )
 	)
       )
