@@ -36,7 +36,7 @@ namespace VLispProfiler
         [Verb("profile", HelpText = "Generate Profile LISP file and Symbols file.")]
         class ProfileVerb
         {
-            [Option('f', "file", SetName = "File", Required = true, HelpText = "LISP Files")]
+            [Option('f', "file", Required = true, HelpText = "LISP Files")]
             public IEnumerable<string> LispFiles { get; set; }
 
             [Option('i', "include", HelpText = "Includes (i.e. specify 'command' to only profile command calls)")]
