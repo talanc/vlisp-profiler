@@ -35,6 +35,8 @@ namespace VLispProfiler
 
     public struct FilePosition
     {
+        public static readonly FilePosition Empty = new FilePosition(0, 0);
+
         public int Line { get; set; }
         public int Column { get; set; }
 

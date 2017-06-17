@@ -17,7 +17,7 @@ namespace VLispProfiler.Tests
             var emit = profiler.Emit();
 
             // Assert
-            Assert.AreEqual(Format("(progn (prof:in \"101\") (prof:out (list (progn (prof:in \"102\") (prof:out (+ 1 2))))))"), emit.Profile);
+            Assert.AreEqual(Format("(progn (prof:in \"1\") (prof:out (list (progn (prof:in \"2\") (prof:out (+ 1 2))))))"), emit.Profile);
         }
 
         [TestMethod]
@@ -32,10 +32,10 @@ namespace VLispProfiler.Tests
 
             // Assert
             var expected = Format(@"
-(progn (prof:in ""101"") (prof:out (add 1 2)))
+(progn (prof:in ""1"") (prof:out (add 1 2)))
 (sub 1 2)
 (+ 1 2)
-(progn (prof:in ""102"") (prof:out (ADD 1 2)))
+(progn (prof:in ""2"") (prof:out (ADD 1 2)))
 ");
             Assert.AreEqual(expected, emit.Profile);
         }
@@ -54,7 +54,7 @@ namespace VLispProfiler.Tests
             var expected = Format(@"
 (defun a (x y / z)
   (progn 
-    (prof:in ""101"")
+    (prof:in ""1"")
     (prof:out (progn (setq z (+ x y)) z))
   )
 )
@@ -74,11 +74,11 @@ namespace VLispProfiler.Tests
             // Assert
             var expected = Format(@"
 (progn
-  (prof:in ""101"")
+  (prof:in ""1"")
   (prof:out (cond
               (nil
                 (progn 
-                  (prof:in ""102"")
+                  (prof:in ""2"")
                   (prof:out (setq v ""is nil""))
                 )
                 v
@@ -89,6 +89,23 @@ namespace VLispProfiler.Tests
 )
 ");
             Assert.AreEqual(expected, emit.Profile);
+        }
+
+        [TestMethod]
+        public void TestPredefinedSymbols()
+        {
+            // Arrange
+            var profiler = MakeProfilerEmitter("(setq a 1)");
+            profiler.AddPredefinedSymbol(1, "Load");
+            profiler.AddPredefinedSymbol(2, "Run");
+
+            // Act
+            var emit = profiler.Emit();
+
+            // Assert
+            StringAssert.Contains(emit.Symbol, "1,Load");
+            StringAssert.Contains(emit.Symbol, "2,Run");
+            StringAssert.Contains(emit.Symbol, "3,Inline");
         }
 
 #region "Helpers"

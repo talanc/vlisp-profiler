@@ -9,18 +9,21 @@ namespace VLispProfiler
     {
         private string _sourceText;
         private List<(AstExpr Expression, int Id, string SymbolType)> _symbols = new List<(AstExpr Expression, int Id, string SymbolType)>();
+        private int _lastSymbolId = 0;
         
         // only include certain list items, i.e. "command" only profile command items
         public ISet<string> IncludeFilter { get; }
-
-        //public ISet<string> ExcludeFilter { get; }
-
+        
         public ProfilerEmitter(string sourceText)
         {
             _sourceText = sourceText;
             
             IncludeFilter = new HashSet<string>(AstIdentifierNameComparer.Instance);
-            //ExcludeFilter = new HashSet<string>(AstIdentifierNameComparer.Instance);
+        }
+
+        public void AddPredefinedSymbol(int id, string symbolType)
+        {
+            AddSymbol(null, id, symbolType);
         }
 
         public (string Profile, string Symbol) Emit()
@@ -44,8 +47,14 @@ namespace VLispProfiler
             {
                 map.AppendLine();
 
-                var pos1 = scanner.GetLinePosition(symbol.Expression.Pos);
-                var pos2 = scanner.GetLinePosition(symbol.Expression.End);
+                var pos1 = FilePosition.Empty;
+                var pos2 = FilePosition.Empty;
+                if (symbol.Expression != null)
+                {
+                    pos1 = scanner.GetLinePosition(symbol.Expression.Pos);
+                    pos2 = scanner.GetLinePosition(symbol.Expression.End);
+                }
+                
                 var s = $"{symbol.Id},{symbol.SymbolType},{pos1.Line},{pos1.Column},{pos2.Line},{pos2.Column}";
                 map.Append(s);
             }
@@ -58,8 +67,6 @@ namespace VLispProfiler
             var scanner = new Scanner(_sourceText);
             var parser = new Parser(scanner);
             var program = parser.GetProgram();
-
-            _symbols.Clear();
 
             var profile = new AstProgram();
             profile.Body = new List<AstExpr>();
@@ -80,7 +87,7 @@ namespace VLispProfiler
                 var newList = new AstList(list);
 
                 if (ShouldInclude(list))
-                    id = NewSymbol(expr, "Inline");
+                    id = AddSymbol(expr, -1, "Inline");
 
                 newList.Expressions = new List<AstExpr>();
                 foreach (var child in list.Expressions)
@@ -100,7 +107,7 @@ namespace VLispProfiler
                 var newFunc = new AstFunction(func);
 
                 if (ShouldInclude(func))
-                    id = NewSymbol(expr, "Function");
+                    id = AddSymbol(expr, -1, "Function");
 
                 newFunc.Body = new List<AstExpr>();
                 foreach (var child in func.Body)
@@ -127,7 +134,7 @@ namespace VLispProfiler
                 var newCond = new AstCond(cond);
 
                 if (ShouldInclude(expr))
-                    id = NewSymbol(expr, "Inline");
+                    id = AddSymbol(expr, -1, "Inline");
 
                 newCond.Conditions = new List<AstCondCondition>();
                 foreach (var item in cond.Conditions)
@@ -181,10 +188,17 @@ namespace VLispProfiler
             throw new ArgumentException("type must be AstList or AstFunction or AstCond", nameof(expr));
         }
 
-        private int NewSymbol(AstExpr expr, string type)
+        private int AddSymbol(AstExpr expr, int id, string symbolType)
         {
-            var id = _symbols.Count + 101;
-            _symbols.Add((expr, id, type));
+            if (id == -1)
+                id = _lastSymbolId + 1;
+            else if (id <= _lastSymbolId)
+                throw new ArgumentOutOfRangeException(nameof(id), $"value must be > {_lastSymbolId}");
+
+            _lastSymbolId = id;
+
+            _symbols.Add((expr, id, symbolType));
+
             return id;
         }
 
