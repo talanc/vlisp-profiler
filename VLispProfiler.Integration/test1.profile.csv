@@ -1,0 +1,78 @@
+Symbols # Id,StartLine,StartCol,EndLine,EndCol,Preview
+1,23,1,23,11,(setq i 5)
+2,24,1,29,4,(while ...
+3,24,8,24,30,(>= ...
+4,24,12,24,27,(setq i ...
+5,24,20,24,26,(1- i)
+6,25,3,27,10,(setq p1 ...
+7,25,12,25,30,(list 0 ...
+8,25,20,25,29,(* i 30)
+9,26,12,26,32,(list 200 ...
+10,26,22,26,31,(* i 30)
+11,28,3,28,29,(command "pline" p1 p2 "")
+
+Traces # Symbol,Trace,Time
+1,In,0
+1,Out,0
+2,In,0
+	3,In,0
+		4,In,0
+			5,In,0
+			5,Out,0
+		4,Out,0
+	3,Out,0
+	6,In,0
+		7,In,0
+			8,In,0
+			8,Out,0
+		7,Out,0
+		9,In,0
+			10,In,0
+			10,Out,0
+		9,Out,0
+	6,Out,0
+	11,In,0
+	11,Out,22
+	3,In,22
+		4,In,22
+			5,In,22
+			5,Out,22
+		4,Out,22
+	3,Out,22
+	6,In,22
+		7,In,22
+			8,In,22
+			8,Out,22
+		7,Out,22
+		9,In,22
+			10,In,22
+			10,Out,22
+		9,Out,22
+	6,Out,22
+	11,In,22
+	11,Out,37
+	3,In,37
+		4,In,37
+			5,In,37
+			5,Out,37
+		4,Out,37
+	3,Out,37
+	6,In,37
+		7,In,37
+			8,In,37
+			8,Out,37
+		7,Out,37
+		9,In,37
+			10,In,37
+			10,Out,37
+		9,Out,37
+	6,Out,37
+	11,In,37
+	11,Out,53
+	3,In,53
+		4,In,53
+			5,In,53
+			5,Out,53
+		4,Out,53
+	3,Out,53
+2,Out,53

@@ -1,0 +1,35 @@
+Program = { Expression } .
+
+Expression = SymbolExpression | Function | Lambda | List | BasicLiteral .
+
+SymbolExpression = "'" Expression .
+
+Function = "(" "defun" identifier FunctionParameters FunctionBody ")" .
+
+Lambda = "(" "lambda" FunctionParameters FunctionBody ")" .
+
+FunctionParameters = "(" { identifier } [ "/" { identifier } ] ")" | "nil" .
+
+FunctionBody = Expression { Expression } .
+
+List = "(" { Expression } ")" .
+
+BasicLiteral = identifier | string | int | real .
+
+------------------------
+
+identifier = identifier_char { identifier_char } .
+
+string = `"` { char } `"` .
+
+int = [ sign ] digit { digit } .
+
+real = [ sign ] digit { digit } "." { digit } .
+
+char = /* any char */ .
+
+identifier_char = /* any char besides "(", ")", `"`. cannot start with "." */ .
+
+digit = "0" ... "9"
+
+sign = "+" | "-"
