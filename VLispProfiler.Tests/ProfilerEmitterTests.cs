@@ -101,11 +101,13 @@ namespace VLispProfiler.Tests
 
             // Act
             var emit = profiler.Emit();
+            string[] sep = { Environment.NewLine };
+            var lines = emit.Symbol.Split(sep, StringSplitOptions.None);
 
             // Assert
-            StringAssert.Contains(emit.Symbol, "1,Load");
-            StringAssert.Contains(emit.Symbol, "2,Run");
-            StringAssert.Contains(emit.Symbol, "3,Inline");
+            StringAssert.StartsWith(lines[1], "1,Load");
+            StringAssert.StartsWith(lines[2], "2,Run");
+            StringAssert.StartsWith(lines[3], "3,Inline");
         }
 
 #region "Helpers"
