@@ -58,8 +58,6 @@ namespace VLispProfiler
                     err = 1;
                 }
             }
-            if (err != 0)
-                return err;
 
             var symbols = new List<(int, string)>();
             foreach (var sym in verb.PredefinedSymbols)
@@ -77,6 +75,7 @@ namespace VLispProfiler
                     symbols.Add((id, symbol));
                 }
             }
+
             if (err != 0)
                 return err;
 
