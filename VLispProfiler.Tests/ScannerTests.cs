@@ -73,11 +73,11 @@ namespace VLispProfiler.Tests
             scanner.RescanComments = false;
 
             // Act
-            var scan = scanner.ScanTokLit();
+            scanner.Scan();
 
             // Assert
-            Assert.AreEqual(Token.Comment, scan.Token);
-            Assert.AreEqual(input, scan.Literal);
+            Assert.AreEqual(Token.Comment, scanner.CurrentToken);
+            Assert.AreEqual(input, scanner.CurrentLiteral);
         }
 
         [DataTestMethod]
@@ -89,6 +89,9 @@ namespace VLispProfiler.Tests
         [DataRow("3.", Token.Real)]
         [DataRow("3..4", Token.Identifier)]
         [DataRow("1+", Token.Identifier)]
+        [DataRow("-3", Token.Int)]
+        [DataRow("+3.14", Token.Real)]
+        [DataRow("++3", Token.Identifier)]
         public void TestLiterals(string input, Token token)
         {
             // Arrange
@@ -100,23 +103,6 @@ namespace VLispProfiler.Tests
             // Assert
             Assert.AreEqual(token, scanner.CurrentToken);
             Assert.AreEqual(input, scanner.CurrentLiteral);
-        }
-
-        [DataTestMethod]
-        [DataRow("-3", Token.Int)]
-        [DataRow("+3.14", Token.Real)]
-        [DataRow("++3", Token.Identifier)]
-        public void TestSignLiterals(string input, Token token)
-        {
-            // Arrange
-            var scanner = MakeScanner(input);
-
-            // Act
-            var scan = scanner.ScanTokLit();
-
-            // Assert
-            Assert.AreEqual(token, scan.Token);
-            Assert.AreEqual(input, scan.Literal);
         }
 
         [DataTestMethod]
@@ -142,31 +128,31 @@ namespace VLispProfiler.Tests
             var scanner = MakeScanner("(list 3 3.14 \"3.14\" 3..14)");
 
             // Act + Assert
-            var scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.ParenLeft, scan.Token);
+            scanner.Scan();
+            Assert.AreEqual(Token.ParenLeft, scanner.CurrentToken);
 
-            scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.Identifier, scan.Token);
-            Assert.AreEqual("list", scan.Literal);
+            scanner.Scan();
+            Assert.AreEqual(Token.Identifier, scanner.CurrentToken);
+            Assert.AreEqual("list", scanner.CurrentLiteral);
 
-            scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.Int, scan.Token);
-            Assert.AreEqual("3", scan.Literal);
+            scanner.Scan();
+            Assert.AreEqual(Token.Int, scanner.CurrentToken);
+            Assert.AreEqual("3", scanner.CurrentLiteral);
 
-            scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.Real, scan.Token);
-            Assert.AreEqual("3.14", scan.Literal);
+            scanner.Scan();
+            Assert.AreEqual(Token.Real, scanner.CurrentToken);
+            Assert.AreEqual("3.14", scanner.CurrentLiteral);
 
-            scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.String, scan.Token);
-            Assert.AreEqual("\"3.14\"", scan.Literal);
+            scanner.Scan();
+            Assert.AreEqual(Token.String, scanner.CurrentToken);
+            Assert.AreEqual("\"3.14\"", scanner.CurrentLiteral);
 
-            scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.Identifier, scan.Token);
-            Assert.AreEqual("3..14", scan.Literal);
+            scanner.Scan();
+            Assert.AreEqual(Token.Identifier, scanner.CurrentToken);
+            Assert.AreEqual("3..14", scanner.CurrentLiteral);
 
-            scan = scanner.ScanTokLit();
-            Assert.AreEqual(Token.ParenRight, scan.Token);
+            scanner.Scan();
+            Assert.AreEqual(Token.ParenRight, scanner.CurrentToken);
         }
 
         [TestMethod]

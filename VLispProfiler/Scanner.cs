@@ -27,12 +27,6 @@ namespace VLispProfiler
             RescanComments = true;
         }
 
-        public (Token Token, string Literal) ScanTokLit()
-        {
-            Scan();
-            return (CurrentToken, CurrentLiteral);
-        }
-
         public ScannerStack PushStack()
         {
             return new ScannerStack(this);
