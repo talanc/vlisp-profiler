@@ -214,6 +214,11 @@ namespace VLispProfiler
         {
             Name = name;
         }
+
+        public bool Equals(string name)
+        {
+            return AstIdentifierNameComparer.Instance.Equals(Name, name);
+        }
     }
 
     public class AstIdentifierNameComparer : IEqualityComparer<string>

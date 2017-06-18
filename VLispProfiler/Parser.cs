@@ -100,7 +100,7 @@ namespace VLispProfiler
                 NextToken(); // .
 
                 stack.Commit();
-                
+
                 var rexpr = GetExpression(true);
                 if (rexpr == null)
                     ThrowParserException("expecting expression");
@@ -144,30 +144,34 @@ namespace VLispProfiler
 
         private AstCond GetCond()
         {
-            if (_scanner.CurrentToken == Token.ParenLeft)
+            if (_scanner.CurrentToken != Token.ParenLeft)
+                return null;
+
+            using (var stack = _scanner.PushStack())
             {
                 var lparen = _scanner.CurrentTokenStartPos;
+                NextToken();
 
-                if (_scanner.ScanIf(Token.Identifier, VLispStrings.Cond))
+                var cond = GetIdentifier();
+
+                if (cond == null || !cond.Equals(VLispStrings.Cond))
+                    return null;
+
+                stack.Commit();
+
+                var conditions = GetCondConditions();
+
+                var rparen = _scanner.CurrentTokenStartPos;
+                NextToken();
+
+                return new AstCond
                 {
-                    var cond = GetIdentifier();
-
-                    var conditions = GetCondConditions();
-
-                    var rparen = _scanner.CurrentTokenStartPos;
-                    NextToken();
-
-                    return new AstCond
-                    {
-                        ParenLeftPos = lparen,
-                        ParenRightPos = rparen,
-                        Cond = cond,
-                        Conditions = conditions
-                    };
-                }
+                    ParenLeftPos = lparen,
+                    ParenRightPos = rparen,
+                    Cond = cond,
+                    Conditions = conditions
+                };
             }
-
-            return null;
         }
 
         private IList<AstCondCondition> GetCondConditions()
@@ -198,33 +202,38 @@ namespace VLispProfiler
             if (_scanner.CurrentToken != Token.ParenLeft)
                 return null;
 
-            var lparen = _scanner.CurrentTokenStartPos;
-
-            if (!_scanner.ScanIf(Token.Identifier, VLispStrings.Defun))
-                return null;
-
-            var defun = GetIdentifier();
-
-            var name = GetIdentifier();
-            if (name == null)
-                ThrowParserException("Expecting identifier");
-
-            var fp = GetFunctionParams_Strict();
-
-            var fb = GetFunctionBody_Strict();
-
-            var rparen = _scanner.CurrentTokenStartPos;
-            NextToken(); // )
-
-            return new AstFunction
+            using (var stack = _scanner.PushStack())
             {
-                Defun = defun,
-                Name = name,
-                Parameters = fp,
-                Body = fb,
-                ParenLeftPos = lparen,
-                ParenRightPos = rparen,
-            };
+                var lparen = _scanner.CurrentTokenStartPos;
+                NextToken();
+
+                var defun = GetIdentifier();
+                if (defun == null || !defun.Equals(VLispStrings.Defun))
+                    return null;
+
+                stack.Commit();
+
+                var name = GetIdentifier();
+                if (name == null)
+                    ThrowParserException("Expecting identifier");
+
+                var fp = GetFunctionParams_Strict();
+
+                var fb = GetFunctionBody_Strict();
+
+                var rparen = _scanner.CurrentTokenStartPos;
+                NextToken(); // )
+
+                return new AstFunction
+                {
+                    Defun = defun,
+                    Name = name,
+                    Parameters = fp,
+                    Body = fb,
+                    ParenLeftPos = lparen,
+                    ParenRightPos = rparen,
+                };
+            }
         }
 
         private AstLambda GetLambda()
@@ -232,28 +241,33 @@ namespace VLispProfiler
             if (_scanner.CurrentToken != Token.ParenLeft)
                 return null;
 
-            var lparen = _scanner.CurrentTokenStartPos;
-
-            if (!_scanner.ScanIf(Token.Identifier, VLispStrings.Lambda))
-                return null;
-
-            var lambda = GetIdentifier();
-
-            var fp = GetFunctionParams_Strict();
-
-            var fb = GetFunctionBody_Strict();
-
-            var rparen = _scanner.CurrentTokenStartPos;
-            NextToken(); // )
-
-            return new AstLambda
+            using (var stack = _scanner.PushStack())
             {
-                Lambda = lambda,
-                Parameters = fp,
-                Body = fb,
-                ParenLeftPos = lparen,
-                ParenRightPos = rparen,
-            };
+                var lparen = _scanner.CurrentTokenStartPos;
+                NextToken();
+
+                var lambda = GetIdentifier();
+                if (lambda == null || !lambda.Equals(VLispStrings.Lambda))
+                    return null;
+
+                stack.Commit();
+
+                var fp = GetFunctionParams_Strict();
+
+                var fb = GetFunctionBody_Strict();
+
+                var rparen = _scanner.CurrentTokenStartPos;
+                NextToken(); // )
+
+                return new AstLambda
+                {
+                    Lambda = lambda,
+                    Parameters = fp,
+                    Body = fb,
+                    ParenLeftPos = lparen,
+                    ParenRightPos = rparen,
+                };
+            }
         }
 
         private AstFunctionParameters GetFunctionParams_Strict()

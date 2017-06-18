@@ -37,36 +37,6 @@ namespace VLispProfiler
             _stacks.Last().Dispose();
         }
 
-        public bool ScanIf(Token? token, string literal, bool caseSens = false)
-        {
-            var cmp = (caseSens ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-
-            // save state
-            var prevPos = _currentPosition;
-            var prevStartPos = CurrentStartPos;
-            var prevTokenStartPos = CurrentTokenStartPos;
-            var prevToken = CurrentToken;
-            var prevLiteral = CurrentLiteral;
-            var prevError = CurrentError;
-
-            Scan();
-
-            if ((!token.HasValue || token == CurrentToken) && (literal == null || literal.Equals(CurrentLiteral, cmp)))
-            {
-                return true;
-            }
-
-            // restore state
-            _currentPosition = prevPos;
-            CurrentStartPos = prevStartPos;
-            CurrentTokenStartPos = prevTokenStartPos;
-            CurrentToken = prevToken;
-            CurrentLiteral = prevLiteral;
-            CurrentError = prevError;
-
-            return false;
-        }
-
         public Token Scan()
         {
             rescan:
