@@ -41,7 +41,7 @@ namespace VLispProfiler
 
             var map = new StringBuilder();
 
-            map.Append("SymbolId,SymbolType,StartLine,StartCol,EndLine,EndCol");
+            map.Append("SymbolId,SymbolType,StartPos,EndPos");
 
             foreach (var symbol in _symbols)
             {
@@ -55,7 +55,7 @@ namespace VLispProfiler
                     pos2 = scanner.GetLinePosition(symbol.Expression.End);
                 }
                 
-                var s = $"{symbol.Id},{symbol.SymbolType},{pos1.Line},{pos1.Column},{pos2.Line},{pos2.Column}";
+                var s = $"{symbol.Id},{symbol.SymbolType},{pos1},{pos2}";
                 map.Append(s);
             }
             
