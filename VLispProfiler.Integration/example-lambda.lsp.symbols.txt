@@ -1,0 +1,2 @@
+SymbolId,SymbolType,StartPos,EndPos
+1,Inline,1:1,4:6
