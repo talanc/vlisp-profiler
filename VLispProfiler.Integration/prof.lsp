@@ -75,74 +75,62 @@
   value
   )
 
-(defun c:prof ( / path func-sym)
-  (if (prof:get-exe) ;; sets prof:exe
+(defun c:prof ( / path path-prof func func-sym args)
+  (setq path (getfiled "Select LISP file" "" "lsp" 0))
+  (if path
     (progn
-      (setq path (getfiled "Select LISP file" "" "lsp" 0))
-      (if path
-	(progn
-	  (setq func-sym (read (getstring nil "function name (empty for load exec): ")))
-	  
-	  (setq args (strcat "profile -f " (prof:file-path path)))
-	  (if func-sym
-	    (setq args (strcat args " -s 1:Load 2:Run"))
-	    (setq args (strcat args " -s 1:LoadRun"))
+      (setq path-prof (strcat path ".prof.lsp"))
+      (setq func nil
+	    func-sym (read (getstring nil "function name (empty for load exec): "))
 	    )
-	  
-	  (prof:prof path func-sym)
+      (if (not (vl-symbolp func-sym))
+	(progn
+	  (setq func-sym nil)
+	  (princ "warn: function name not a symbol")
 	  )
 	)
-      )
-    )
-  )
 
-(defun prof:prof (path func-sym / path-prof path-trac args)
-  (setq path-prof (strcat path ".prof.lsp")
-	path-trac (strcat path ".traces.txt")
+      (setq args (strcat "profile -f " (prof:file-path path)))
+      (if func-sym
+	(setq args (strcat args " -s 1:Load 2:Run"))
+	(setq args (strcat args " -s 1:LoadRun"))
 	)
-  
-  (setq args (strcat "profile -f " (prof:file-path path)))
-  (if func-sym
-    (setq args (strcat args " -s 1:Load 2:Run"))
-    (setq args (strcat args " -s 1:LoadRun"))
-    )
-  
-  (startapp (prof:get-exe) args)
-  
-  ;; TODO, figure out a way to automate this
-  (getstring nil "type go!")
-  
-  (setq prof:file (open path-trac "w"))
-  
-  (if func-sym
-    (progn
-      ;; Load
-      (prof:in "1")
-      (load path-prof)
-      (prof:out nil)
-      
-      ;; Run
-      (prof:in "2")
-      ((vl-symbol-value func-sym))
-      (prof:out nil)
-      )
-    (progn
-      ;; LoadRun
-      (prof:in "1")
-      (load path-prof)
-      (prof:out nil)
-      )
-    )
-  
-  (if prof:file
-    (progn
-      (close prof:file)
-      (setq prof:file nil)
-      )
-    )
-  
-  (setq args (strcat "view -f " (prof:file-path path)))
-  (startapp (prof:get-exe) args)
 
-  (princ)
+      (startapp (prof:get-exe) args)
+
+      (getstring nil "type go!")
+
+      (setq prof:file (open (strcat path ".traces.txt") "w"))
+
+      (if func-sym
+	(progn
+	  ;; Load
+	  (prof:in "1")
+	  (load path-prof)
+	  (prof:out nil)
+
+	  ;; Run
+	  (prof:in "2")
+	  ((vl-symbol-value func-sym))
+	  (prof:out nil)
+	  )
+	(progn
+	  ;; LoadRun
+	  (prof:in "1")
+	  (load path-prof)
+	  (prof:out nil)
+	  )
+	)
+
+      (if prof:file
+	(progn
+	  (close prof:file)
+	  (setq prof:file nil)
+	  )
+	)
+
+      (setq args (strcat "view -f " (prof:file-path path)))
+      (startapp (prof:get-exe) args)
+      )
+    )
   )
