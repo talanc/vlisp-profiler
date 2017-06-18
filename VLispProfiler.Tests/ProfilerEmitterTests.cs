@@ -92,6 +92,28 @@ namespace VLispProfiler.Tests
         }
 
         [TestMethod]
+        public void TestProfilerEmitterLambda()
+        {
+            // Arrange
+            var profiler = MakeProfilerEmitter("((lambda (x y / z) (setq z (+ x y)) z))");
+            profiler.IncludeFilter.Add("lambda");
+
+            // Act
+            var emit = profiler.Emit();
+
+            // Assert
+            var expected = Format(@"
+((lambda (x y / z)
+  (progn 
+    (prof:in ""1"")
+    (prof:out (progn (setq z (+ x y)) z))
+  )
+)
+");
+            Assert.AreEqual(expected, emit.Profile);
+        }
+
+        [TestMethod]
         public void TestPredefinedSymbols()
         {
             // Arrange
