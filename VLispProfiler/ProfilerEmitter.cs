@@ -278,5 +278,13 @@ namespace VLispProfiler
 
             return trace;
         }
+
+        public static readonly string[] SaneExcludes =
+        {
+            "+", "-", "/", "*",
+            "=", "/=", "<", "<=", ">", ">=",
+            "~", "1+", "1-", "boole",
+            "prin1", "princ", "print"
+        };
     }
 }

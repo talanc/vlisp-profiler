@@ -47,6 +47,9 @@ namespace VLispProfiler
 
             [Option('s', "symbol", HelpText = "Specify a pre-defined symbol as ID:Type (i.e. 1:Load)")]
             public IEnumerable<string> PredefinedSymbols { get; set; }
+
+            [Option("sane", HelpText = "Adds sane excludes to profile files")]
+            public bool SaneExcludes { get; set; }
         }
 
         static int RunProfile(ProfileVerb verb)
@@ -93,6 +96,12 @@ namespace VLispProfiler
 
                 foreach (var exc in verb.Excludes)
                     profiler.ExcludeFilter.Add(exc);
+
+                if (verb.SaneExcludes)
+                {
+                    foreach (var exc in ProfilerEmitter.SaneExcludes)
+                        profiler.ExcludeFilter.Add(exc);
+                }
 
                 foreach (var sym in symbols)
                     profiler.AddPredefinedSymbol(sym.Item1, sym.Item2);
