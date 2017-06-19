@@ -17,7 +17,15 @@ namespace VLispProfiler.Tests
             var emit = profiler.Emit();
 
             // Assert
-            Assert.AreEqual(Format("(progn (prof:in \"1\") (prof:out (list (progn (prof:in \"2\") (prof:out (+ 1 2))))))"), emit.Profile);
+            var expected = Format(@"
+(prof:val (prof:in ""1"")
+          (list (prof:val (prof:in ""2"")
+                          (+ 1 2)
+                )
+          )
+)
+");
+            Assert.AreEqual(expected, emit.Profile);
         }
 
         [TestMethod]
@@ -32,10 +40,10 @@ namespace VLispProfiler.Tests
 
             // Assert
             var expected = Format(@"
-(progn (prof:in ""1"") (prof:out (add 1 2)))
+(prof:val (prof:in ""1"") (add 1 2))
 (sub 1 2)
 (+ 1 2)
-(progn (prof:in ""2"") (prof:out (ADD 1 2)))
+(prof:val (prof:in ""2"") (ADD 1 2))
 ");
             Assert.AreEqual(expected, emit.Profile);
         }
@@ -53,9 +61,9 @@ namespace VLispProfiler.Tests
             // Assert
             var expected = Format(@"
 (defun a (x y / z)
-  (progn 
+  (prof:val
     (prof:in ""1"")
-    (prof:out (progn (setq z (+ x y)) z))
+    (progn (setq z (+ x y)) z)
   )
 )
 ");
@@ -73,18 +81,17 @@ namespace VLispProfiler.Tests
 
             // Assert
             var expected = Format(@"
-(progn
+(prof:val
   (prof:in ""1"")
-  (prof:out (cond
-              (nil
-                (progn 
-                  (prof:in ""2"")
-                  (prof:out (setq v ""is nil""))
-                )
-                v
-              )
-              (t ""is t"")
-            )
+  (cond
+    (nil
+      (prof:val
+        (prof:in ""2"")
+        (setq v ""is nil"")
+      )
+      v
+    )
+    (t ""is t"")
   )
 )
 ");
@@ -95,7 +102,7 @@ namespace VLispProfiler.Tests
         public void TestProfilerEmitterLambda()
         {
             // Arrange
-            var profiler = MakeProfilerEmitter("((lambda (x y / z) (setq z (+ x y)) z))");
+            var profiler = MakeProfilerEmitter("((lambda (x y) (+ x y)))");
             profiler.IncludeFilter.Add("lambda");
 
             // Act
@@ -103,11 +110,12 @@ namespace VLispProfiler.Tests
 
             // Assert
             var expected = Format(@"
-((lambda (x y / z)
-  (progn 
-    (prof:in ""1"")
-    (prof:out (progn (setq z (+ x y)) z))
-  )
+((lambda (x y)
+   (prof:val
+     (prof:in ""1"")
+     (+ x y)
+   )
+ )
 )
 ");
             Assert.AreEqual(expected, emit.Profile);

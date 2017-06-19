@@ -116,16 +116,61 @@ namespace VLispProfiler
                 if (id == -1)
                     return newFunc;
 
-                var progn = new AstList("progn");
-                foreach (var child in newFunc.Body)
-                    progn.Expressions.Add(child);
+                AstExpr traceExpr;
+                if (newFunc.Body.Count == 1)
+                {
+                    traceExpr = newFunc.Body[0];
+                }
+                else
+                {
+                    var progn = new AstList("progn");
+                    foreach (var child in newFunc.Body)
+                        progn.Expressions.Add(child);
+                    traceExpr = progn;
+                }
 
-                var trace = NewTrace(id, progn);
+                var trace = NewTrace(id, traceExpr);
 
                 newFunc.Body.Clear();
                 newFunc.Body.Add(trace);
 
                 return newFunc;
+            }
+
+            if (expr is AstLambda)
+            {
+                var lambda = expr as AstLambda;
+                var newLambda = new AstLambda(lambda);
+
+                if (ShouldInclude(lambda))
+                    id = AddSymbol(expr, -1, "Function");
+
+                newLambda.Body = new List<AstExpr>();
+                foreach (var child in lambda.Body)
+                    newLambda.Body.Add(BuildExpression(child));
+
+                if (id == -1)
+                    return newLambda;
+
+                AstExpr traceExpr;
+                if (newLambda.Body.Count == 1)
+                {
+                    traceExpr = newLambda.Body[0];
+                }
+                else
+                {
+                    var progn = new AstList("progn");
+                    foreach (var child in newLambda.Body)
+                        progn.Expressions.Add(child);
+                    traceExpr = progn;
+                }
+
+                var trace = NewTrace(id, traceExpr);
+
+                newLambda.Body.Clear();
+                newLambda.Body.Add(trace);
+
+                return newLambda;
             }
 
             if (expr is AstCond)
@@ -180,6 +225,11 @@ namespace VLispProfiler
                 return IncludeFilter.Contains(VLispStrings.Defun);
             }
 
+            if (expr is AstLambda)
+            {
+                return IncludeFilter.Contains(VLispStrings.Lambda);
+            }
+
             if (expr is AstCond)
             {
                 return IncludeFilter.Contains(VLispStrings.Cond);
@@ -205,9 +255,9 @@ namespace VLispProfiler
         private AstList NewTrace(int symbolId, AstExpr expr)
         {
             var trace = new AstList(
-                "progn",
+                "prof:val",
                 new AstList("prof:in", new AstAtom(symbolId.ToString())),
-                new AstList("prof:out", expr)
+                expr
             );
 
             return trace;

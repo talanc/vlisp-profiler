@@ -61,6 +61,10 @@
     prof:file)
   )
 
+(defun prof:val (in value)
+  (prof:out value)
+  )
+
 (defun prof:in (symbol)
   (setq prof:symbols (cons symbol prof:symbols))
   (prof:write-trace "In")

@@ -143,6 +143,18 @@ namespace VLispProfiler
 
         public override int Pos => ParenLeftPos;
         public override int End => ParenRightPos + 1;
+
+        public AstLambda() { }
+
+        public AstLambda(AstLambda func)
+        {
+            ParenLeftPos = func.ParenLeftPos;
+            ParenRightPos = func.ParenRightPos;
+
+            Lambda = func.Lambda;
+            Parameters = func.Parameters;
+            Body = func.Body;
+        }
     }
 
     public class AstFunctionParameters : AstExpr
