@@ -42,6 +42,9 @@ namespace VLispProfiler
             [Option('i', "include", HelpText = "Includes (i.e. specify 'command' to only profile command calls)")]
             public IEnumerable<string> Includes { get; set; }
 
+            [Option('e', "exclude", HelpText = "Excludes (i.e. specify 'command' to ignore command calls")]
+            public IEnumerable<string> Excludes { get; set; }
+
             [Option('s', "symbol", HelpText = "Specify a pre-defined symbol as ID:Type (i.e. 1:Load)")]
             public IEnumerable<string> PredefinedSymbols { get; set; }
         }
@@ -87,6 +90,9 @@ namespace VLispProfiler
 
                 foreach (var inc in verb.Includes)
                     profiler.IncludeFilter.Add(inc);
+
+                foreach (var exc in verb.Excludes)
+                    profiler.ExcludeFilter.Add(exc);
 
                 foreach (var sym in symbols)
                     profiler.AddPredefinedSymbol(sym.Item1, sym.Item2);

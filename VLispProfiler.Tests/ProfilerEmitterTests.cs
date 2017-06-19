@@ -140,6 +140,26 @@ namespace VLispProfiler.Tests
             StringAssert.StartsWith(lines[3], "3,Inline");
         }
 
+        [DataTestMethod]
+        [DataRow("empty-always", true, "", "")]
+        [DataRow("not-here", false, "", "not-here")]
+        [DataRow("not-in-include", false, "another-value-here", "")]
+        public void TestIncludeExclude(string test, bool expected, string include, string exclude)
+        {
+            // Arrange
+            var profiler = MakeProfilerEmitter("emitter");
+            var incArr = include.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var excArr = exclude.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var filter in incArr) profiler.IncludeFilter.Add(filter);
+            foreach (var filter in excArr) profiler.ExcludeFilter.Add(filter);
+
+            // Act
+            var actual = profiler.TestInclude(test);
+
+            // Assert
+            Assert.AreEqual(expected, actual);
+        }
+
 #region "Helpers"
 
         private string Format(string sourceText)

@@ -13,12 +13,14 @@ namespace VLispProfiler
         
         // only include certain list items, i.e. "command" only profile command items
         public ISet<string> IncludeFilter { get; }
+        public ISet<string> ExcludeFilter { get; }
         
         public ProfilerEmitter(string sourceText)
         {
             _sourceText = sourceText;
             
             IncludeFilter = new HashSet<string>(AstIdentifierNameComparer.Instance);
+            ExcludeFilter = new HashSet<string>(AstIdentifierNameComparer.Instance);
         }
 
         public void AddPredefinedSymbol(int id, string symbolType)
@@ -204,6 +206,20 @@ namespace VLispProfiler
 
             return expr;
         }
+
+        public bool TestInclude(string ident)
+        {
+            if (ExcludeFilter.Contains(ident))
+                return false;
+
+            if (IncludeFilter.Count == 0)
+                return true;
+
+            if (IncludeFilter.Contains(ident))
+                return true;
+
+            return false;
+        }
         
         private bool ShouldInclude(AstExpr expr)
         {
@@ -214,7 +230,7 @@ namespace VLispProfiler
             {
                 var list = expr as AstList;
                 var ident = list.Expressions.FirstOrDefault() as AstIdentifier;
-                if (ident != null && IncludeFilter.Contains(ident.Name))
+                if (ident != null && TestInclude(ident.Name))
                     return true;
 
                 return false;
@@ -222,17 +238,17 @@ namespace VLispProfiler
 
             if (expr is AstFunction)
             {
-                return IncludeFilter.Contains(VLispStrings.Defun);
+                return TestInclude(VLispStrings.Defun);
             }
 
             if (expr is AstLambda)
             {
-                return IncludeFilter.Contains(VLispStrings.Lambda);
+                return TestInclude(VLispStrings.Lambda);
             }
 
             if (expr is AstCond)
             {
-                return IncludeFilter.Contains(VLispStrings.Cond);
+                return TestInclude(VLispStrings.Cond);
             }
 
             throw new ArgumentException("type must be AstList or AstFunction or AstCond", nameof(expr));
