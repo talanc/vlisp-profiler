@@ -100,7 +100,26 @@
     )
   )
 
-(defun prof:prof (path func-sym / path-prof path-trac args)
+(defun prof:prof (path func-sym / func-sym-type path-prof path-trac args)
+  (cond
+    ((null func-sym)
+     nil ;; OK
+     )
+    ((vl-symbolp func-sym)
+     (setq func-sym-type (type (vl-symbol-value func-sym)))
+     (if (/= func-sym-type 'SUBR 'USUBR)
+       (progn
+	 (princ "func-sym must be nil or a function symbol")
+	 (exit)
+	 )
+       )
+     )
+    (t
+     (princ "func-sym must be nil or a function symbol")
+     (exit)
+     )
+    )
+  
   (setq path-prof (strcat path ".prof.lsp")
 	path-trac (strcat path ".traces.txt")
 	)
