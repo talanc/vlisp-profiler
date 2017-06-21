@@ -48,7 +48,7 @@ namespace VLispProfiler
             [Option('s', "symbol", HelpText = "Specify a pre-defined symbol as ID:Type (i.e. 1:Load)")]
             public IEnumerable<string> PredefinedSymbols { get; set; }
 
-            [Option("sane", HelpText = "Adds sane excludes to profile files")]
+            [Option("sane", HelpText = "Adds sane excludes (arithmetic, logical, display functions) to profile files")]
             public bool SaneExcludes { get; set; }
         }
 

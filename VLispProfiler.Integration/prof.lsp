@@ -87,7 +87,7 @@
 	(progn
 	  (setq func-sym (read (getstring nil "function name (empty for load exec): ")))
 	  
-	  (setq args (strcat "profile -f " (prof:file-path path)))
+	  (setq args (strcat "profile --sane -f " (prof:file-path path)))
 	  (if func-sym
 	    (setq args (strcat args " -s 1:Load 2:Run"))
 	    (setq args (strcat args " -s 1:LoadRun"))
