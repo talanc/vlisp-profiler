@@ -223,7 +223,7 @@ namespace VLispProfiler
         
         private bool ShouldInclude(AstExpr expr)
         {
-            if (IncludeFilter.Count == 0)
+            if (IncludeFilter.Count == 0 && ExcludeFilter.Count == 0)
                 return true;
 
             if (expr is AstList)

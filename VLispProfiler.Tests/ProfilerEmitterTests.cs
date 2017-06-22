@@ -49,6 +49,37 @@ namespace VLispProfiler.Tests
         }
 
         [TestMethod]
+        public void TestProfilerEmitter_NestedIncludes()
+        {
+            // Arrange
+            var profiler = MakeProfilerEmitter("(apply '+ (list (+ 1 1) (1+ 1) (- 2 1)))");
+            profiler.ExcludeFilter.Add("apply");
+            profiler.ExcludeFilter.Add("+");
+            profiler.ExcludeFilter.Add("-");
+
+            // Act
+            var emit = profiler.Emit();
+
+            // Assert
+            var expected = Format(@"
+(apply
+  '+
+  (prof:val
+    (prof:in ""1"")
+    (list (+ 1 1)
+          (prof:val
+            (prof:in ""2"")
+            (1+ 1)
+          )
+          (- 2 1)
+    )
+  )
+)
+");
+            Assert.AreEqual(expected, emit.Profile);
+        }
+
+        [TestMethod]
         public void TestProfilerEmitterDefun()
         {
             // Arrange
