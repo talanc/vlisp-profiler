@@ -48,8 +48,8 @@ namespace VLispProfiler
             [Option('s', "symbol", HelpText = "Specify a pre-defined symbol as ID:Type (i.e. 1:Load)")]
             public IEnumerable<string> PredefinedSymbols { get; set; }
 
-            [Option("sane", HelpText = "Adds sane excludes (arithmetic, logical, display functions) to profile files")]
-            public bool SaneExcludes { get; set; }
+            [Option(HelpText = "Disables sane excludes (arithmetic, logical, display functions)")]
+            public bool NoSaneExcludes { get; set; }
         }
 
         static int RunProfile(ProfileVerb verb)
@@ -97,7 +97,7 @@ namespace VLispProfiler
                 foreach (var exc in verb.Excludes)
                     profiler.ExcludeFilter.Add(exc);
 
-                if (verb.SaneExcludes)
+                if (!verb.NoSaneExcludes)
                 {
                     foreach (var exc in ProfilerEmitter.SaneExcludes)
                         profiler.ExcludeFilter.Add(exc);
