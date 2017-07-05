@@ -21,10 +21,16 @@ namespace VLispProfiler.View
             _tr = new StreamReader(stream);
         }
 
-        public IEnumerable<TraceItem> GetTraces()
+        public TraceItem GetTrace()
         {
-            var traces = new List<TraceItem>();
-            TraceItem trace = null;
+            var root = new TraceItem()
+            {
+                Id = 0,
+                Items = new List<TraceItem>()
+            };
+
+            var trace = root;
+            
             var stack = new Stack<TraceItem>();
             string line;
             int lineNum = 0;
@@ -34,68 +40,47 @@ namespace VLispProfiler.View
                 lineNum++;
 
                 var arr = line.Trim().Split(',');
-                if (arr.Length == 3)
+                if (arr.Length != 3)
+                    continue;
+
+                if (arr[1] == "In")
                 {
-                    if (trace == null)
+                    var newTrace = new TraceItem()
                     {
-                        if (arr[1] != "In")
-                            throw new Exception($"expected 'In' at line {lineNum}");
+                        Id = int.Parse(arr[0]),
+                        InElapsed = TimeSpan.Parse(arr[2]),
+                        Items = new List<TraceItem>()
+                    };
 
-                        trace = new TraceItem()
-                        {
-                            Id = int.Parse(arr[0]),
-                            InElapsed = TimeSpan.Parse(arr[2])
-                        };
+                    trace.Items.Add(newTrace);
+                    stack.Push(trace);
+                    trace = newTrace;
+                }
+                else if (arr[1] == "Out")
+                {
+                    if (stack.Count == 0)
+                        throw new TraceReaderException("unexpected 'Out' with no stack");
 
-                        stack.Push(trace);
-                    }
-                    else if (arr[1] == "In")
-                    {
-                        if (trace.Items == null)
-                            trace.Items = new List<TraceItem>();
+                    if (arr[0] != trace.Id.ToString())
+                        throw new TraceReaderException($"expected id '{trace.Id}', not '{arr[0]}', at line {lineNum}");
 
-                        var newTrace = new TraceItem()
-                        {
-                            Id = int.Parse(arr[0]),
-                            InElapsed = TimeSpan.Parse(arr[2])
-                        };
+                    trace.OutElapsed = TimeSpan.Parse(arr[2]);
 
-                        trace.Items.Add(newTrace);
-                        stack.Push(newTrace);
-                        trace = newTrace;
-                    }
-                    else if (arr[1] == "Out")
-                    {
-                        if (trace == null)
-                            throw new Exception($"unexpected 'Out' at line {lineNum}");
-
-                        if (arr[0] != trace.Id.ToString())
-                            throw new Exception($"expected id '{trace.Id}', not '{arr[0]}', at line {lineNum}");
-
-                        trace.OutElapsed = TimeSpan.Parse(arr[2]);
-                        
-                        if (stack.Count == 1)
-                        {
-                            traces.Add(trace);
-                            trace = null;
-                            stack.Pop();
-                        }
-                        else
-                        {
-                            trace = stack.Pop();
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"unexpected symbol type '{arr[1]}' at line {lineNum}");
-                    }
+                    trace = stack.Pop();
+                }
+                else
+                {
+                    throw new TraceReaderException($"unexpected symbol type '{arr[1]}' at line {lineNum}");
                 }
             }
 
             if (stack.Count > 0)
-                throw new Exception($"unexpected items in stack {stack.Count}");
+                throw new TraceReaderException($"unexpected items in stack {stack.Count}");
 
-            return traces;
+            root.InElapsed = root.Items.First().InElapsed;
+            root.OutElapsed = root.Items.Last().OutElapsed;
+
+            return root;
         }
     }
 }

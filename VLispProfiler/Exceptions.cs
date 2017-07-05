@@ -25,5 +25,10 @@ namespace VLispProfiler
         {
         }
     }
-    
+
+    public class TraceReaderException : Exception
+    {
+        public TraceReaderException() : base() { }
+        public TraceReaderException(string message) : base(message) { }
+    }
 }

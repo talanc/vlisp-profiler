@@ -15,17 +15,23 @@ namespace VLispProfiler.Tests
             var reader = new TraceReader(@"
 1,In,00:00:00
 1,Out,00:00:01
+2,In,00:00:01
+2,Out,00:00:03
 ");
 
             // Act
-            var traces = reader.GetTraces();
+            var root = reader.GetTrace();
 
             // Assert
-            Assert.AreEqual(1, traces.Count());
-            Assert.AreEqual(1, traces.First().Id);
-            Assert.AreEqual(new TimeSpan(0, 0, 0), traces.First().InElapsed);
-            Assert.AreEqual(new TimeSpan(0, 0, 1), traces.First().OutElapsed);
-            Assert.AreEqual(new TimeSpan(0, 0, 1), traces.First().Elapsed);
+            Assert.AreEqual(2, root.Items.Count);
+            Assert.AreEqual(1, root.Items.ElementAt(0).Id);
+            Assert.AreEqual(new TimeSpan(0, 0, 0), root.Items.ElementAt(0).InElapsed);
+            Assert.AreEqual(new TimeSpan(0, 0, 1), root.Items.ElementAt(0).OutElapsed);
+            Assert.AreEqual(new TimeSpan(0, 0, 1), root.Items.ElementAt(0).Elapsed);
+            Assert.AreEqual(2, root.Items.ElementAt(1).Id);
+            Assert.AreEqual(new TimeSpan(0, 0, 1), root.Items.ElementAt(1).InElapsed);
+            Assert.AreEqual(new TimeSpan(0, 0, 3), root.Items.ElementAt(1).OutElapsed);
+            Assert.AreEqual(new TimeSpan(0, 0, 2), root.Items.ElementAt(1).Elapsed);
         }
 
         [TestMethod]
@@ -35,25 +41,21 @@ namespace VLispProfiler.Tests
             var reader = new TraceReader(@"
 1,In,00:00:00
 2,In,00:00:00
-3,In,00:00:00
-3,Out,00:00:01
-4,In,00:00:01
-4,Out,00:00:02
-2,Out,00:00:02
+2,Out,00:00:01
+3,In,00:00:01
+3,Out,00:00:02
 1,Out,00:00:03
 ");
 
             // Act
-            var traces = reader.GetTraces();
+            var root = reader.GetTrace();
 
             // Assert
-            Assert.AreEqual(1, traces.Count());
-            Assert.AreEqual(1, traces.ElementAt(0).Id);
-            Assert.AreEqual(1, traces.ElementAt(0).Items.Count());
-            Assert.AreEqual(2, traces.ElementAt(0).Items.ElementAt(0).Id);
-            Assert.AreEqual(2, traces.ElementAt(0).Items.ElementAt(0).Items.Count());
-            Assert.AreEqual(3, traces.ElementAt(0).Items.ElementAt(0).Items.ElementAt(0).Id);
-            Assert.AreEqual(4, traces.ElementAt(0).Items.ElementAt(0).Items.ElementAt(1).Id);
+            Assert.AreEqual(1, root.Items.Count());
+            Assert.AreEqual(1, root.Items.ElementAt(0).Id);
+            Assert.AreEqual(2, root.Items.ElementAt(0).Items.Count());
+            Assert.AreEqual(2, root.Items.ElementAt(0).Items.ElementAt(0).Id);
+            Assert.AreEqual(3, root.Items.ElementAt(0).Items.ElementAt(1).Id);
         }
 
         [DataTestMethod]
