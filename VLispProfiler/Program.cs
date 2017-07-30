@@ -108,11 +108,10 @@ namespace VLispProfiler
 
                 var emit = profiler.Emit();
 
-                var symbolPath = $"{filePath}.symbols.txt";
-                File.WriteAllText(symbolPath, emit.Symbol);
+                var paths = new VLispPath(filePath);
 
-                var profilerPath = $"{filePath}.prof.lsp";
-                File.WriteAllText(profilerPath, emit.Profile);
+                File.WriteAllText(paths.SymbolPath, emit.Symbol);
+                File.WriteAllText(paths.FileProfilerPath, emit.Profile);
             }
 
             return 0;
@@ -124,11 +123,34 @@ namespace VLispProfiler
             [Value(0)]
             [Option('f', "file", Required = true, HelpText = "LISP Files")]
             public IEnumerable<string> LispFiles { get; set; }
+            
+            [Option('t', "top", HelpText = "Top (N) results")]
+            public int Top { get; set; }
+
+            [Option('r', "report", HelpText = "Generate an interactive report")]
+            public string Report { get; set; }
         }
 
         static int RunView(ViewVerb verb)
         {
-            Console.WriteLine("not implemented yet");
+            var filePath = verb.LispFiles.First();
+
+            if (verb.Top > 0)
+            {
+                var top = new View.Top(filePath, Console.Out, verb.Top);
+                top.Display();
+                return 0;
+            }
+            
+            if (!string.IsNullOrEmpty(verb.Report))
+            {
+                var report = new View.HtmlReport(filePath, verb.Report);
+                report.Generate();
+                System.Diagnostics.Process.Start(verb.Report);
+                return 0;
+            }
+
+            Console.WriteLine("no output options specified");
 
             return 1;
         }
