@@ -36,7 +36,34 @@ namespace VLispProfiler.View
         {
             _output.WriteLine(HtmlHeader);
 
-            _output.WriteLine("<b>TODO REPORT</b>");
+            var i = 0;
+            string line;
+
+            _output.WriteLine("<table>");
+            _output.WriteLine("<tr><th>#</th><th>Elapsed</th><th>Program</th></tr>");
+
+            while ((line = _input.ReadLine()) != null)
+            {
+                i++;
+
+                _output.Write("<tr>");
+
+                _output.Write("<td>");
+                _output.Write(i);
+                _output.Write("</td>");
+
+                _output.Write("<td>");
+                _output.Write("00:00:00");
+                _output.Write("</td>");
+
+                _output.Write("<td style='font-family: Lucida Console; white-space: pre;'>");
+                _output.Write(line);
+                _output.Write("</td>");
+
+                _output.WriteLine("</tr>");
+            }
+
+            _output.WriteLine("</table>");
 
             _output.WriteLine(HtmlFooter);
 
