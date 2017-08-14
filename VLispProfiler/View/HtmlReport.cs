@@ -9,18 +9,18 @@ namespace VLispProfiler.View
 {
     public class HtmlReport
     {
-        private Scanner _scanner;
         private VLispPath _path;
         private TextReader _input;
         private TextWriter _output;
+        private Scanner _scanner;
 
         public HtmlReport(string filePath, string reportPath)
         {
-            _scanner = new Scanner(File.ReadAllText(filePath));
-            _scanner.RescanComments = false;
             _path = new VLispPath(filePath);
             _input = new StreamReader(filePath);
             _output = new StreamWriter(reportPath);
+            _scanner = new Scanner(_path.FilePathContents);
+            _scanner.RescanComments = false;
         }
 
         public string HtmlHeader { get; set; } = @"<!DOCTYPE html>
@@ -32,7 +32,9 @@ namespace VLispProfiler.View
     <title>Document</title>
     <style>
         .lisp-code {
-            font-family: Lucida Console;
+            unicode-bidi: embed;
+            font-family: monospace;
+            font-size: 16px;
             white-space: pre;
         }
 
@@ -45,6 +47,10 @@ namespace VLispProfiler.View
             color: blue;
         }
 
+        .lisp-identifier-user {
+            color: black;
+        }
+
         .lisp-int {
             color: green;
         }
@@ -54,7 +60,7 @@ namespace VLispProfiler.View
         }
 
         .lisp-string {
-            color: pink;
+            color: magenta;
         }
 
         .lisp-quote {
@@ -85,9 +91,10 @@ namespace VLispProfiler.View
 
         private void WriteToken()
         {
-            var pos = _scanner.GetLinePosition(_scanner.CurrentStartPos);
-            var tokenPos = _scanner.GetLinePosition(_scanner.CurrentTokenStartPos);
-            
+            //var pos = _scanner.GetLinePosition(_scanner.CurrentStartPos);
+            //var tokenPos = _scanner.GetLinePosition(_scanner.CurrentTokenStartPos);
+            var pos = _scanner.GetLinePosition(_scanner.CurrentTokenStartPos);
+
             while (_lineNum < pos.Line)
             {
                 FinishLine();
@@ -95,20 +102,25 @@ namespace VLispProfiler.View
 
             if (_lineCol < pos.Column)
             {
-                _lineInput += " ".PadLeft(pos.Column - _lineCol);
+                var spaces = " ".PadLeft(pos.Column - _lineCol);
+                AddInput(spaces, "lisp-code");
             }
 
             var lines = GetLiteral().Split('\n');
 
-            _lineInput += $"<span class='{GetClass(_scanner.CurrentToken)}'>{lines[0]}</span>";
-            _lineCol += lines[0].Length;
+            AddInput(lines[0], GetClass());
 
             for (int i = 1; i < lines.Length; i++)
             {
                 FinishLine();
-                _lineInput += $"<span class='{GetClass(_scanner.CurrentToken)}'>{lines[i]}</span>";
-                _lineCol += lines[i].Length;
+                AddInput(lines[i], GetClass());
             }
+        }
+
+        private void AddInput(string input, string cls)
+        {
+            _lineInput += $"<span class='{cls}'>{input}</span>";
+            _lineCol += input.Length;
         }
 
         private void FinishLine()
@@ -134,9 +146,12 @@ namespace VLispProfiler.View
             _lineInput = "";
         }
 
-        private string GetClass(Token tok)
+        private string GetClass()
         {
-            return $"lisp-code lisp-{tok.ToString().ToLower()}";
+            if (_scanner.CurrentToken == Token.Identifier && !VLispStrings.IsPredefinedIdentifier(_scanner.CurrentLiteral))
+                return "lisp-code lisp-predefined-user";
+            
+            return $"lisp-code lisp-{_scanner.CurrentToken.ToString().ToLower()}";
         }
 
         private string GetLiteral()
