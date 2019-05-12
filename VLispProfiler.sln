@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLispProfiler", "VLispProfiler\VLispProfiler.csproj", "{B362C447-254C-432E-8E4D-0727E86BD83C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VLispProfiler", "VLispProfiler\VLispProfiler.csproj", "{B362C447-254C-432E-8E4D-0727E86BD83C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLispProfiler.Tests", "VLispProfiler.Tests\VLispProfiler.Tests.csproj", "{91870D72-0194-4173-BDED-CBBD9031EFDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VLispProfiler.Tests", "VLispProfiler.Tests\VLispProfiler.Tests.csproj", "{91870D72-0194-4173-BDED-CBBD9031EFDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLispProfiler.Cmdline", "VLispProfiler.Cmdline\VLispProfiler.Cmdline.csproj", "{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,15 @@ Global
 		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91870D72-0194-4173-BDED-CBBD9031EFDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {85366AAF-C447-49CD-8222-CEFAEA69292F}
 	EndGlobalSection
 EndGlobal

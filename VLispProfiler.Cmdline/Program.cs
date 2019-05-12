@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
-using System.Collections.Generic;
 
-namespace VLispProfiler
+namespace VLispProfiler.Cmdline
 {
     class Program
     {
@@ -17,10 +17,10 @@ namespace VLispProfiler
             try
             {
 #endif
-                result = CommandLine.Parser.Default.ParseArguments<ProfileVerb, ViewVerb>(args).MapResult(
-                    (ProfileVerb opts) => RunProfile(opts),
-                    (ViewVerb opts) => RunView(opts),
-                    errs => 1);
+            result = CommandLine.Parser.Default.ParseArguments<ProfileVerb, ViewVerb>(args).MapResult(
+                (ProfileVerb opts) => RunProfile(opts),
+                (ViewVerb opts) => RunView(opts),
+                errs => 1);
 #if RELEASE
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace VLispProfiler
         static int RunProfile(ProfileVerb verb)
         {
             var err = 0;
-            
+
             foreach (var file in verb.LispFiles)
             {
                 if (!File.Exists(file))
@@ -123,7 +123,7 @@ namespace VLispProfiler
             [Value(0)]
             [Option('f', "file", Required = true, HelpText = "LISP Files")]
             public IEnumerable<string> LispFiles { get; set; }
-            
+
             [Option('t', "top", HelpText = "Top (N) results")]
             public int Top { get; set; }
 
@@ -141,7 +141,7 @@ namespace VLispProfiler
                 top.Display();
                 return 0;
             }
-            
+
             if (!string.IsNullOrEmpty(verb.Report))
             {
                 var report = new View.HtmlReport(filePath, verb.Report);
