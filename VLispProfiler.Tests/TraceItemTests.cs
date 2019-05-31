@@ -25,13 +25,13 @@ namespace VLispProfiler.Tests
         public void TestSelfElapsed()
         {
             // Arrange
-            var item = MakeTraceItem(0, 10, MakeTraceItem(4, 5));
+            var item = MakeTraceItem(0, 10, MakeTraceItem(4, 5), MakeTraceItem(6, 7));
 
             // Act
             var selfElapsed = item.SelfElapsed;
 
             // Assert
-            Assert.AreEqual(9, selfElapsed.TotalSeconds);
+            Assert.AreEqual(8, selfElapsed.TotalSeconds);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace VLispProfiler.Tests
         #region "Helpers"
 
         private int nextId = 0;
-        private TraceItem MakeTraceItem(int inElapsed, int outElapsed, params TraceItem[] items)
+        private TraceItem MakeTraceItem(double inElapsed, double outElapsed, params TraceItem[] items)
         {
             nextId++;
 
