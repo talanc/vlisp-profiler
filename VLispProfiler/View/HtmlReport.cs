@@ -23,76 +23,12 @@ namespace VLispProfiler.View
             _scanner.RescanComments = false;
         }
 
-        public string HtmlHeader { get; set; } = @"<!DOCTYPE html>
-<html lang=""en"">
-<head>
-    <meta charset=""UTF-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <meta http-equiv=""X-UA-Compatible"" content=""ie=edge"">
-    <title>Document</title>
-    <style>
-        .lisp-code {
-            unicode-bidi: embed;
-            font-family: monospace;
-            font-size: 16px;
-            white-space: pre;
-        }
-
-        .lisp-comment {
-            color: purple;
-            background-color: lightgrey;
-        }
-
-        .lisp-identifier {
-            color: blue;
-        }
-
-        .lisp-identifier-user {
-            color: black;
-        }
-
-        .lisp-int {
-            color: green;
-        }
-
-        .lisp-real {
-            color: green;
-        }
-
-        .lisp-string {
-            color: magenta;
-        }
-
-        .lisp-quote {
-            color: brown;
-        }
-
-        .lisp-dot {
-            color: brown;
-        }
-
-        .lisp-parenleft {
-            color: red;
-        }
-
-        .lisp-parenright {
-            color: red;
-        }
-    </style>
-</head>
-<body>";
-
-        public string HtmlFooter { get; set; } = @"</body>
-</html>
-";
         private int _lineNum = 1;
         private int _lineCol = 1;
         private string _lineInput = "";
 
         private void WriteToken()
         {
-            //var pos = _scanner.GetLinePosition(_scanner.CurrentStartPos);
-            //var tokenPos = _scanner.GetLinePosition(_scanner.CurrentTokenStartPos);
             var pos = _scanner.GetLinePosition(_scanner.CurrentTokenStartPos);
 
             while (_lineNum < pos.Line)
@@ -194,5 +130,68 @@ namespace VLispProfiler.View
 
             _output.Flush();
         }
+
+        public string HtmlHeader { get; set; } = @"<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <meta http-equiv=""X-UA-Compatible"" content=""ie=edge"">
+    <title>Document</title>
+    <style>
+        .lisp-code {
+            unicode-bidi: embed;
+            font-family: monospace;
+            font-size: 16px;
+            white-space: pre;
+        }
+
+        .lisp-comment {
+            color: purple;
+            background-color: lightgrey;
+        }
+
+        .lisp-identifier {
+            color: blue;
+        }
+
+        .lisp-identifier-user {
+            color: black;
+        }
+
+        .lisp-int {
+            color: green;
+        }
+
+        .lisp-real {
+            color: green;
+        }
+
+        .lisp-string {
+            color: magenta;
+        }
+
+        .lisp-quote {
+            color: brown;
+        }
+
+        .lisp-dot {
+            color: brown;
+        }
+
+        .lisp-parenleft {
+            color: red;
+        }
+
+        .lisp-parenright {
+            color: red;
+        }
+    </style>
+</head>
+<body>";
+
+        public string HtmlFooter { get; set; } = @"</body>
+</html>
+";
     }
 }
