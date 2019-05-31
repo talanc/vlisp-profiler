@@ -11,10 +11,26 @@ namespace VLispProfiler.View
         public int Id { get; set; }
         public TimeSpan InElapsed { get; set; }
         public TimeSpan OutElapsed { get; set; }
-        public TimeSpan Elapsed => OutElapsed - InElapsed;
         public IList<TraceItem> Items { get; set; }
 
         public TraceItem() { }
+
+        public TimeSpan Elapsed => OutElapsed - InElapsed;
+
+        public TimeSpan SelfElapsed
+        {
+            get
+            {
+                if (Items == null || !Items.Any())
+                    return Elapsed;
+
+                var itemsElapsedSum = TimeSpan.Zero;
+                foreach (var item in Items)
+                    itemsElapsedSum += item.Elapsed;
+
+                return Elapsed - itemsElapsedSum;
+            }
+        }
 
         public bool Equals(TraceItem other)
         {
@@ -35,7 +51,6 @@ namespace VLispProfiler.View
                     }
                     return true;
                 }
-
             }
 
             return false;
