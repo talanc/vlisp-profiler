@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VLispProfiler.View
 {
-    public class TraceItem : IEqualityComparer<TraceItem>
+    public class TraceItem : IEquatable<TraceItem>
     {
         public int Id { get; set; }
         public TimeSpan InElapsed { get; set; }
@@ -16,35 +16,29 @@ namespace VLispProfiler.View
 
         public TraceItem() { }
 
-        public bool Equals(TraceItem x, TraceItem y)
+        public bool Equals(TraceItem other)
         {
-            if (x == null && y == null)
-                return true;
+            if (other == null)
+                return false;
 
-            if (x?.Id == y?.Id &&
-                x.InElapsed == y.InElapsed &&
-                x.OutElapsed == y.OutElapsed)
+            if (Id == other.Id && InElapsed == other.InElapsed && OutElapsed == other.OutElapsed)
             {
-                if (x.Items == null && y.Items == null)
+                if (Items == null && other.Items == null)
                     return true;
 
-                if (x.Items?.Count == y.Items?.Count)
+                if (Items?.Count == other.Items?.Count)
                 {
-                    for (var i = 0; i < x.Items.Count; i++)
+                    for (var i = 0; i < Items.Count; i++)
                     {
-                        if (!x.Items[i].Equals(y.Items[i]))
+                        if (!Items[i].Equals(other.Items[i]))
                             return false;
                     }
                     return true;
                 }
-            
-            }
-            return false;
-        }
 
-        public int GetHashCode(TraceItem obj)
-        {
-            throw new NotImplementedException();
+            }
+
+            return false;
         }
     }
 }
