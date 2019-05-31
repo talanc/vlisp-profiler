@@ -16,10 +16,9 @@ namespace VLispProfiler.Tests
             var item = MakeTraceItem(0, 10);
 
             // Act
-            var elapsed = item.Elapsed;
 
             // Assert
-            Assert.AreEqual(10, elapsed.TotalSeconds);
+            Assert.AreEqual(10, item.Elapsed.TotalSeconds);
         }
 
         [TestMethod]
