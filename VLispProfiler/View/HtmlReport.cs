@@ -10,14 +10,12 @@ namespace VLispProfiler.View
     public class HtmlReport
     {
         private VLispPath _path;
-        private TextReader _input;
         private TextWriter _output;
         private Scanner _scanner;
 
         public HtmlReport(string filePath, string reportPath)
         {
             _path = new VLispPath(filePath);
-            _input = new StreamReader(filePath);
             _output = new StreamWriter(reportPath);
             _scanner = new Scanner(_path.FilePathContents);
             _scanner.RescanComments = false;
