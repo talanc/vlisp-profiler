@@ -17,10 +17,12 @@ namespace VLispProfiler.Cmdline
             try
             {
 #endif
-            result = CommandLine.Parser.Default.ParseArguments<ProfileVerb, ViewVerb>(args).MapResult(
-                (ProfileVerb opts) => RunProfile(opts),
-                (ViewVerb opts) => RunView(opts),
-                errs => 1);
+            result = CommandLine.Parser.Default
+                .ParseArguments<ProfileVerb, ViewVerb>(args)
+                .MapResult(
+                    (ProfileVerb opts) => RunProfile(opts),
+                    (ViewVerb opts) => RunView(opts),
+                    errs => 1);
 #if RELEASE
             }
             catch (Exception ex)
