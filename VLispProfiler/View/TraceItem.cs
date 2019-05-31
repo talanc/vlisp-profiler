@@ -15,6 +15,8 @@ namespace VLispProfiler.View
 
         public TraceItem() { }
 
+        public bool HasItems => Items != null && Items.Any();
+
         public TimeSpan Elapsed => OutElapsed - InElapsed;
 
         public TimeSpan SelfElapsed
