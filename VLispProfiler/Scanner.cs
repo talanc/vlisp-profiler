@@ -191,7 +191,7 @@ namespace VLispProfiler
 
             GetLineOffsets();
 
-            // todo, binary search
+            // todo: binary search
             for (var i = 1; i < _lineOffsets.Count; i++)
             {
                 if (position < _lineOffsets[i])

@@ -23,11 +23,13 @@ namespace VLispProfiler.View
             return Items.OrderByDescending(curr => curr.Called);
         }
 
+        // todo: traverse TraceItem instead, first items are always going to be the top
         public IEnumerable<TraceSummaryItem> GetTopElapsed()
         {
             return Items.OrderByDescending(curr => curr.Elapsed);
         }
 
+        // todo: traverse TraceItem instead
         public IEnumerable<TraceSummaryItem> GetTopSelfElapsed()
         {
             return Items.OrderByDescending(curr => curr.SelfElapsed);
