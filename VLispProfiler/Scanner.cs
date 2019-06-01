@@ -55,7 +55,8 @@ namespace VLispProfiler
             // end of file
             if (_currentPosition == _input.Length)
             {
-                return CurrentToken = Token.EndOfFile;
+                CurrentToken = Token.EndOfFile;
+                return CurrentToken;
             }
 
             var ch = _input[_currentPosition];
@@ -201,6 +202,18 @@ namespace VLispProfiler
             }
 
             return new FilePosition(_lineOffsets.Count, position - _lineOffsets.Last() + 1);
+        }
+
+        public string GetSourceText(int pos, int end)
+        {
+            if (pos < 0 || pos > _input.Length)
+                throw new ArgumentOutOfRangeException(nameof(pos));
+            if (end < 0 || end > _input.Length)
+                throw new ArgumentOutOfRangeException(nameof(end));
+            if (pos > end)
+                throw new ArgumentOutOfRangeException(nameof(pos), $"{nameof(pos)} must be >= {nameof(end)}");
+
+            return _input.Substring(pos, end - pos);
         }
 
         private IList<int> GetLineOffsets()

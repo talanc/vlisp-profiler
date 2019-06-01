@@ -43,21 +43,27 @@ namespace VLispProfiler
 
             var map = new StringBuilder();
 
-            map.Append("SymbolId,SymbolType,StartPos,EndPos");
+            map.Append("SymbolId,SymbolType,StartPos,EndPos,Preview");
 
-            foreach (var symbol in _symbols)
+            foreach (var (expr, id, symbolType) in _symbols)
             {
                 map.AppendLine();
 
                 var pos1 = FilePosition.Empty;
                 var pos2 = FilePosition.Empty;
-                if (symbol.Expression != null)
+                var preview = "";
+                if (expr != null)
                 {
-                    pos1 = scanner.GetLinePosition(symbol.Expression.Pos);
-                    pos2 = scanner.GetLinePosition(symbol.Expression.End);
+                    pos1 = scanner.GetLinePosition(expr.Pos);
+                    pos2 = scanner.GetLinePosition(expr.End);
+
+                    preview = scanner.GetSourceText(expr.Pos, expr.End);
+                    preview = System.Text.RegularExpressions.Regex.Replace(preview, @"\s+", " ");
+                    if (preview.Length > 25)
+                        preview = preview.Substring(0, 22) + "...";
                 }
                 
-                var s = $"{symbol.Id},{symbol.SymbolType},{pos1},{pos2}";
+                var s = $"{id},{symbolType},{pos1},{pos2},{preview}";
                 map.Append(s);
             }
             
