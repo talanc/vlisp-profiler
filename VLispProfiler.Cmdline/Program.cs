@@ -89,7 +89,9 @@ namespace VLispProfiler.Cmdline
 
             foreach (var filePath in verb.LispFiles)
             {
-                var fileText = File.ReadAllText(filePath);
+                var vlispPath = new VLispPath(filePath);
+
+                var fileText = vlispPath.FilePathContents;
 
                 var profiler = new ProfilerEmitter(fileText);
 
