@@ -168,7 +168,7 @@ namespace VLispProfiler
 
                 if (_regexInt.IsMatch(CurrentLiteral))
                 {
-                    if (Int32.TryParse(CurrentLiteral, out int result) && result != Int32.MinValue)
+                    if (int.TryParse(CurrentLiteral, out int result) && result != int.MinValue)
                         CurrentToken = Token.Int;
                     else
                         CurrentToken = Token.Real;
