@@ -1,0 +1,6 @@
+profile:
+profile -f "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" -s 1:LoadRun
+
+view:
+view --file "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" --top 10
+
