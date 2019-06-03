@@ -494,5 +494,18 @@ namespace VLispProfiler
         {
             return $"{Line}:{Column}";
         }
+
+        public static FilePosition Parse(string s)
+        {
+            var pun = s.IndexOf(':');
+            if (pun == -1)
+                throw new FormatException("no : found");
+
+            var fp = new FilePosition();
+            fp.Line = int.Parse(s.Substring(0, pun));
+            fp.Column = int.Parse(s.Substring(pun + 1));
+
+            return fp;
+        }
     }
 }
