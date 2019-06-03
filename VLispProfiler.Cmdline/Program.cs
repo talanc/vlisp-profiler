@@ -128,8 +128,11 @@ namespace VLispProfiler.Cmdline
             [Option('f', "file", Required = true, HelpText = "LISP Files")]
             public IEnumerable<string> LispFiles { get; set; }
 
-            [Option('t', "top", HelpText = "Top (N) results")]
+            [Option('t', "top", HelpText = "Show top (N) results")]
             public int Top { get; set; }
+
+            [Option('p', "pause-top", HelpText = "Pauses top output until a key is pressed")]
+            public bool PauseTop { get; set; }
 
             [Option('r', "report", HelpText = "Generate an interactive report")]
             public string Report { get; set; }
@@ -143,6 +146,13 @@ namespace VLispProfiler.Cmdline
             {
                 var top = new View.Top(filePath, Console.Out, verb.Top);
                 top.Display();
+
+                if (verb.PauseTop)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                }
                 return 0;
             }
 
