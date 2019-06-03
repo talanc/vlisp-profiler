@@ -21,6 +21,11 @@ namespace VLispProfiler.View
             _tr = new StreamReader(stream);
         }
 
+        public TraceReader(TextReader sr)
+        {
+            _tr = sr;
+        }
+
         public TraceItem GetTrace()
         {
             var root = new TraceItem()
