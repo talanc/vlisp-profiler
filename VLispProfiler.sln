@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VLispProfiler", "VLispProfi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VLispProfiler.Tests", "VLispProfiler.Tests\VLispProfiler.Tests.csproj", "{91870D72-0194-4173-BDED-CBBD9031EFDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VLispProfiler.Cmdline", "VLispProfiler.Cmdline\VLispProfiler.Cmdline.csproj", "{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VLispProfiler.Cmdline", "VLispProfiler.Cmdline\VLispProfiler.Cmdline.csproj", "{43CDEE2E-7BCD-4DA6-9C37-3FC66362F539}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69C7F1F4-D264-4B0F-A0C6-1CFCDB850A2D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
