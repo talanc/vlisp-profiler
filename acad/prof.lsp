@@ -51,7 +51,7 @@
   )
 
 (if (findfile "prof.dll")
-  (command "netload" "prof.dll") ;; hopefully contains prof:elapsed
+  (command "netload" "prof.dll") ;; hopefully contains vlisp function named prof:elapsed
   )
 
 (defun prof:write-trace (trac)
@@ -164,7 +164,7 @@
       )
     )
   
-  (setq args (strcat "view -f " (prof:file-path path)))
+  (setq args (strcat "view -f " (prof:file-path path) " --top 10 --pause-top"))
   (startapp (prof:get-exe) args)
 
   (princ)
