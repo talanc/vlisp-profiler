@@ -237,6 +237,21 @@ namespace VLispProfiler.Tests
             Assert.AreEqual(token, tok);
         }
 
+        [DataTestMethod]
+        [DataRow("INPUT", 0, 2, "IN")]
+        [DataRow("INPUT", 2, 5, "PUT")]
+        public void TestGetSourceText(string input, int pos, int end, string test)
+        {
+            // Arrange
+            var scanner = MakeScanner(input);
+
+            // Act
+            var sourceText = scanner.GetSourceText(pos, end);
+
+            // Assert
+            Assert.AreEqual(test, sourceText);
+        }
+
 #region "Helpers"
         
         private Scanner MakeScanner(string sourceText)
