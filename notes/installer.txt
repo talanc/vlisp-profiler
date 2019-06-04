@@ -1,0 +1,15 @@
+Registry locations for AutoCAD:
+https://www.cadforum.cz/cadforum_en/products.asp?prod=AutoCAD
+
+Example:
+Computer\HKEY_USERS\S-1-5-21-2712716526-3450690862-1054448533-1001\Software\Autodesk\AutoCAD\R18.1\ACAD-9001:409\Profiles\<<Unnamed Profile>>\Dialogs\Appload\Startup
+
+Example location
+	HKEY_CURRENT_USER\Software\Autodesk\AutoCAD\R18.1\ACAD-9001:409\Profiles\<<Unnamed Profile>>
+
+Support file search path
+	HKEY_CURRENT_USER\Software\Autodesk\AutoCAD\R18.1\ACAD-9001:409\Profiles\<<Unnamed Profile>>\General
+
+Appload startup suite
+	HKEY_CURRENT_USER\Software\Autodesk\AutoCAD\R18.1\ACAD-9001:409\Profiles\<<Unnamed Profile>>\Dialogs\Appload\Startup
+
