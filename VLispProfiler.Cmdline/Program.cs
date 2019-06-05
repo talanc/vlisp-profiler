@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using CommandLine;
-using CommandLine.Text;
 
 namespace VLispProfiler.Cmdline
 {
@@ -18,10 +17,11 @@ namespace VLispProfiler.Cmdline
             {
 #endif
             result = CommandLine.Parser.Default
-                .ParseArguments<ProfileVerb, ViewVerb>(args)
+                .ParseArguments<ProfileVerb, ViewVerb, SetupVerb>(args)
                 .MapResult(
                     (ProfileVerb opts) => RunProfile(opts),
                     (ViewVerb opts) => RunView(opts),
+                    (SetupVerb opts) => RunSetup(opts),
                     errs => 1);
 #if RELEASE
             }
@@ -167,6 +167,32 @@ namespace VLispProfiler.Cmdline
             Console.WriteLine("no output options specified");
 
             return 1;
+        }
+
+        [Verb("setup", HelpText = "Setup profiler in AutoCAD.")]
+        class SetupVerb
+        {
+            [Option("interactive", HelpText = "Interactive mode.", SetName = nameof(Interactive))]
+            public bool Interactive { get; set; }
+
+            [Option('l', "list", HelpText = "List setups.", SetName = nameof(List))]
+            public bool List { get; set; }
+
+            [Option('i', "install", HelpText = "Install profiler script.", SetName = nameof(Install))]
+            public IEnumerable<string> Install { get; set; }
+
+            [Option('u', "uninstall", HelpText = "Uninstall profiler script.", SetName = nameof(Uninstall))]
+            public IEnumerable<string> Uninstall { get; set; }
+        }
+
+        static int RunSetup(SetupVerb verb)
+        {
+            Console.WriteLine($"Interactive = {verb.Interactive}");
+            Console.WriteLine($"List = {verb.List}");
+            Console.WriteLine($"Install = {string.Join(" + ", verb.Install)}");
+            Console.WriteLine($"Uninstall = {string.Join(" + ", verb.Uninstall)}");
+
+            return 0;
         }
     }
 }
