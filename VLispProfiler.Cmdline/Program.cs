@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using CommandLine;
+using VLispProfiler.Setup;
+using System.Reflection;
 
 namespace VLispProfiler.Cmdline
 {
@@ -192,7 +194,23 @@ namespace VLispProfiler.Cmdline
             Console.WriteLine($"Install = {string.Join(" + ", verb.Install)}");
             Console.WriteLine($"Uninstall = {string.Join(" + ", verb.Uninstall)}");
 
-            return 0;
+            if (verb.List)
+            {
+                var setupManager = new SetupManager(Assembly.GetExecutingAssembly().Location);
+                var setups = setupManager.GetSetups();
+
+                foreach (var setup in setups)
+                {
+                    Console.WriteLine($"ReleaseName = {setup.ReleaseName}");
+                    Console.WriteLine($"VersionName = {setup.VersionName}");
+                    Console.WriteLine($"ProfileName = {setup.ProfileName}");
+                    Console.WriteLine($"FriendlyName = {setup.FriendlyName}");
+                }
+
+                return 0;
+            }
+
+            return 1;
         }
     }
 }
