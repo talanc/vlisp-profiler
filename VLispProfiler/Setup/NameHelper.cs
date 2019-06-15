@@ -10,6 +10,14 @@ namespace VLispProfiler.Setup
     {
         public static string GetFriendlyName(string release) => $"AutoCAD {GetReleaseYear(release)}";
 
+        public static string GetFriendlyNameWithProfile(string release, string profile)
+        {
+            var friendlyName = GetFriendlyName(release);
+            if (profile == "<<Unnamed Profile>>")
+                return friendlyName;
+            return $"{friendlyName} ({profile})";
+        }
+
         public static string GetReleaseYear(string release)
         {
             switch (release)
@@ -39,7 +47,7 @@ namespace VLispProfiler.Setup
                 case "R23.1":
                     return "2020";
             }
-            return "unknown";
+            return release;
         }
     }
 }

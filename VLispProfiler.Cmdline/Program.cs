@@ -174,41 +174,66 @@ namespace VLispProfiler.Cmdline
         [Verb("setup", HelpText = "Setup profiler in AutoCAD.")]
         class SetupVerb
         {
-            [Option("interactive", HelpText = "Interactive mode.", SetName = nameof(Interactive))]
-            public bool Interactive { get; set; }
-
             [Option('l', "list", HelpText = "List setups.", SetName = nameof(List))]
             public bool List { get; set; }
 
-            [Option('i', "install", HelpText = "Install profiler script.", SetName = nameof(Install))]
+            [Option('i', "install", HelpText = "Install profiler script. Specify 'all' to install all setups, or specify by name, year, or profile name.", SetName = nameof(Install))]
             public IEnumerable<string> Install { get; set; }
 
-            [Option('u', "uninstall", HelpText = "Uninstall profiler script.", SetName = nameof(Uninstall))]
+            [Option('u', "uninstall", HelpText = "Uninstall profiler script. Specify 'all' to uninstall all setups, or specify by name, year, or profile name.", SetName = nameof(Uninstall))]
             public IEnumerable<string> Uninstall { get; set; }
         }
 
         static int RunSetup(SetupVerb verb)
         {
-            Console.WriteLine($"Interactive = {verb.Interactive}");
-            Console.WriteLine($"List = {verb.List}");
-            Console.WriteLine($"Install = {string.Join(" + ", verb.Install)}");
-            Console.WriteLine($"Uninstall = {string.Join(" + ", verb.Uninstall)}");
+            var setupManager = new SetupManager(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+            );
+            var setups = setupManager.GetSetups();
+
+            if (!setups.Any())
+            {
+                Console.WriteLine("No setups found");
+                return 1;
+            }
 
             if (verb.List)
             {
-                var setupManager = new SetupManager(Assembly.GetExecutingAssembly().Location);
-                var setups = setupManager.GetSetups();
-
+                Console.WriteLine("Setups found:");
                 foreach (var setup in setups)
                 {
-                    Console.WriteLine($"ReleaseName = {setup.ReleaseName}");
-                    Console.WriteLine($"VersionName = {setup.VersionName}");
-                    Console.WriteLine($"ProfileName = {setup.ProfileName}");
-                    Console.WriteLine($"FriendlyName = {setup.FriendlyName}");
+                    Console.WriteLine($"- {setup.FriendNameWithProfile}");
                 }
 
                 return 0;
             }
+
+            if (verb.Install.Any())
+            {
+                var setups2 = setupManager.FilterSetups(setups, verb.Install);
+
+                foreach (var setup in setups2)
+                {
+                    setupManager.InstallSetup(setup);
+                }
+
+                return 0;
+            }
+
+            if (verb.Uninstall.Any())
+            {
+                var setups2 = setupManager.FilterSetups(setups, verb.Uninstall);
+
+                foreach (var setup in setups2)
+                {
+                    setupManager.UninstallSetup(setup);
+                }
+
+                return 0;
+            }
+
+            Console.WriteLine("no setup options specified");
 
             return 1;
         }

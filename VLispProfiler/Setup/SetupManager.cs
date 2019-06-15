@@ -17,11 +17,16 @@ namespace VLispProfiler.Setup
 
     public class SetupManager //: ISetupManager
     {
-        private readonly string currentLocation;
+        private readonly string currentDir;
+        private readonly string userProfilePath;
+        private readonly string profLspPath;
 
-        public SetupManager(string currentLocation)
+        public SetupManager(string currentDir, string userProfilePath)
         {
-            this.currentLocation = currentLocation;
+            this.currentDir = currentDir;
+            this.userProfilePath = userProfilePath;
+
+            profLspPath = Path.Combine(currentDir, "prof.lsp");
         }
 
         public IEnumerable<SetupInstance> GetSetups()
@@ -46,42 +51,6 @@ namespace VLispProfiler.Setup
 
                 foreach (var profileName in profilesSubKeyNames)
                 {
-                    //var profileKey = profilesKey.OpenSubKey(profileName);
-
-                    //var startupKey = profileKey.OpenSubKey(@"Dialogs\Appload\Startup");
-                    //var numStartupValue = (string)startupKey.GetValue("NumStartup");
-                    //var numStartupInt = int.Parse(numStartupValue);
-
-                    //var profPath = default(string);
-                    //var startupActive = false;
-                    //for (var i = 1; i <= numStartupInt; i++)
-                    //{
-                    //    var startupValue = (string)startupKey.GetValue($"{i}Startup");
-                    //    if (startupValue.EndsWith("prof.lsp", StringComparison.InvariantCultureIgnoreCase))
-                    //    {
-                    //        profPath = startupValue;
-                    //        startupActive = true;
-                    //        break;
-                    //    }
-                    //}
-
-                    //var dirActive = false;
-                    //if (profPath != null)
-                    //{
-                    //    var profDir = Path.GetDirectoryName(profPath);
-                    //    var generalKey = profileKey.OpenSubKey("General");
-                    //    var acadValue = (string)generalKey.GetValue("ACAD");
-                    //    var acadPaths = acadValue.Split(';');
-                    //    foreach (var acadPath in acadPaths)
-                    //    {
-                    //        if (profDir.Equals(acadPath, StringComparison.InvariantCultureIgnoreCase))
-                    //        {
-                    //            dirActive = true;
-                    //            break;
-                    //        }
-                    //    }
-                    //}
-
                     var setup = new SetupInstance();
                     setup.ReleaseName = releaseName;
                     setup.VersionName = versionName;
@@ -89,20 +58,157 @@ namespace VLispProfiler.Setup
 
                     setups.Add(setup);
                 }
-
             }
 
             return setups;
         }
 
+        public IEnumerable<SetupInstance> FilterSetups(IEnumerable<SetupInstance> setups, IEnumerable<string> filters)
+        {
+            if (filters.Any(s => s.Equals("all", StringComparison.InvariantCultureIgnoreCase)))
+                return setups;
+
+            return setups.Where(setup =>
+                filters.Any(s => s.Equals(setup.FriendlyName, StringComparison.InvariantCultureIgnoreCase)) ||
+                filters.Any(s => s.Equals(setup.ReleaseName, StringComparison.InvariantCultureIgnoreCase)) ||
+                filters.Any(s => s.Equals(NameHelper.GetReleaseYear(setup.ReleaseName), StringComparison.InvariantCultureIgnoreCase)) ||
+                filters.Any(s => s.Equals(setup.ProfileName, StringComparison.InvariantCultureIgnoreCase))
+            );
+        }
+
         public void InstallSetup(SetupInstance setup)
         {
-            throw new NotImplementedException();
+            if (!File.Exists(profLspPath))
+                throw new FileNotFoundException($"Setup requires prof.lsp present in '{currentDir}'", profLspPath);
+
+            AddAcadPath(setup, currentDir);
+            AddStartupFile(setup, profLspPath);
         }
 
         public void UninstallSetup(SetupInstance setup)
         {
-            throw new NotImplementedException();
+            RemoveAcadPath(setup, currentDir);
+            RemoveStartupFile(setup, profLspPath);
+        }
+
+        private void AddAcadPath(SetupInstance setup, string path)
+        {
+            var acadPath = GetAcadPath(path);
+
+            using (var generalKey = OpenProfileSubKey(setup, "General", writable: true))
+            {
+                var acadValue = (string)generalKey.GetValue("ACAD", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+
+                // already present
+                if (acadValue.IndexOf(acadPath, StringComparison.InvariantCultureIgnoreCase) != -1)
+                    return;
+
+                var newAcadValue = acadValue;
+                if (!newAcadValue.EndsWith(";")) newAcadValue += ";";
+                newAcadValue += acadPath + ";";
+
+                generalKey.SetValue("ACAD", newAcadValue, RegistryValueKind.ExpandString);
+            }
+        }
+
+        private void RemoveAcadPath(SetupInstance setup, string path)
+        {
+            var acadPath = GetAcadPath(path);
+
+            using (var generalKey = OpenProfileSubKey(setup, "General", writable: true))
+            {
+                var acadValue = (string)generalKey.GetValue("ACAD", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+
+                var findAcadPath = acadPath + ";";
+                var i = acadValue.IndexOf(findAcadPath, StringComparison.InvariantCultureIgnoreCase);
+
+                // not present
+                if (i == -1)
+                    return;
+
+                var newAcadValue = acadValue.Substring(0, i) + acadValue.Substring(i + findAcadPath.Length);
+
+                generalKey.SetValue("ACAD", newAcadValue, RegistryValueKind.ExpandString);
+            }
+        }
+
+        private void AddStartupFile(SetupInstance setup, string lspPath)
+        {
+            var acadLspPath = GetAcadPath(lspPath);
+
+            using (var startupKey = OpenProfileSubKey(setup, @"Dialogs\Appload\Startup", writable: true))
+            {
+                var numStartup = int.Parse((string)startupKey.GetValue("NumStartup"));
+
+                // find if already present
+                for (var i = 1; i <= numStartup; i++)
+                {
+                    var startupValue = (string)startupKey.GetValue($"{i}Startup", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+
+                    if (acadLspPath.Equals(startupValue, StringComparison.InvariantCultureIgnoreCase))
+                        return;
+                }
+
+                // add
+                numStartup++;
+                startupKey.SetValue($"{numStartup}Startup", acadLspPath, RegistryValueKind.ExpandString);
+                startupKey.SetValue("NumStartup", numStartup.ToString(), RegistryValueKind.String);
+            }
+        }
+
+        private void RemoveStartupFile(SetupInstance setup, string lspPath)
+        {
+            var acadLspPath = GetAcadPath(lspPath);
+
+            using (var startupKey = OpenProfileSubKey(setup, @"Dialogs\Appload\Startup", writable: true))
+            {
+                var numStartup = int.Parse((string)startupKey.GetValue("NumStartup"));
+
+                // find path
+                var idx = -1;
+                for (var i = 1; i <= numStartup; i++)
+                {
+                    var startupValue = (string)startupKey.GetValue($"{i}Startup", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+
+                    if (acadLspPath.Equals(startupValue, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+
+                // not present
+                if (idx == -1)
+                    return;
+
+                for (var i = idx; i <= numStartup - 1; i++)
+                {
+                    var nextValue = (string)startupKey.GetValue($"{i + 1}Startup", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+
+                    startupKey.SetValue($"{i}Startup", nextValue, RegistryValueKind.ExpandString);
+                }
+
+                // remove last value
+                startupKey.DeleteValue($"{numStartup}Startup");
+
+                // resize NumStartup
+                startupKey.SetValue("NumStartup", (numStartup - 1).ToString(), RegistryValueKind.String);
+            }
+        }
+
+        private RegistryKey OpenProfileSubKey(SetupInstance setup, string path, bool writable)
+        {
+            var name = $@"Software\Autodesk\AutoCAD\{setup.ReleaseName}\{setup.VersionName}\Profiles\{setup.ProfileName}\{path}";
+            var subKey = Registry.CurrentUser.OpenSubKey(name, writable);
+            if (subKey == null) throw new InvalidOperationException($"Could not open registry key: {name}");
+            return subKey;
+        }
+
+        private string GetAcadPath(string path)
+        {
+            if (path.IndexOf(userProfilePath, StringComparison.InvariantCultureIgnoreCase) == 0)
+                return "%USERPROFILE%" + path.Substring(userProfilePath.Length).ToLowerInvariant();
+            return path.ToLowerInvariant();
         }
     }
 
@@ -113,5 +219,7 @@ namespace VLispProfiler.Setup
         public string ProfileName { get; set; }
 
         public string FriendlyName => NameHelper.GetFriendlyName(ReleaseName);
+
+        public string FriendNameWithProfile => NameHelper.GetFriendlyNameWithProfile(ReleaseName, ProfileName);
     }
 }
