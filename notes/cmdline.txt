@@ -1,6 +1,23 @@
 profile:
-profile -f "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" -s 1:LoadRun
+	load:
+	profile -f "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" -s 1:LoadRun
+
+	load&run:
+	profile -f "C:\Users\talan\source\repos\vlisp-profiler\notes\example-run.LSP" -s 1:Load 2:Run
 
 view:
-view --file "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" --top 10
+	top:
+	view --file "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" --top 10
 
+	html:
+	view --file "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.LSP" --report "C:\Users\talan\source\repos\vlisp-profiler\notes\example-load.html"
+
+setup:
+	list:
+	setup --list
+
+	install:
+	setup --install all
+
+	uninstall:
+	setup --uninstall all
