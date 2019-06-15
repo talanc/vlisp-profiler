@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
+using System.Reflection;
 using CommandLine;
 using VLispProfiler.Setup;
-using System.Reflection;
 
 namespace VLispProfiler.Cmdline
 {
@@ -130,13 +131,13 @@ namespace VLispProfiler.Cmdline
             [Option('f', "file", Required = true, HelpText = "LISP Files")]
             public IEnumerable<string> LispFiles { get; set; }
 
-            [Option('t', "top", HelpText = "Show top (N) results")]
+            [Option('t', "top", HelpText = "Show top results.")]
             public int Top { get; set; }
 
-            [Option('p', "pause-top", HelpText = "Pauses top output until a key is pressed")]
+            [Option('p', "pause-top", HelpText = "Pauses top output until a key is pressed.")]
             public bool PauseTop { get; set; }
 
-            [Option('r', "report", HelpText = "Generate an interactive report")]
+            [Option('r', "report", HelpText = "Generate an interactive report.")]
             public string Report { get; set; }
         }
 
@@ -162,7 +163,7 @@ namespace VLispProfiler.Cmdline
             {
                 var report = new View.HtmlReport(filePath, verb.Report);
                 report.Generate();
-                System.Diagnostics.Process.Start(verb.Report);
+                Process.Start(verb.Report);
                 return 0;
             }
 
