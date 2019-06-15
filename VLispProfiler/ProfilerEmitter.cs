@@ -8,7 +8,7 @@ namespace VLispProfiler
     public class ProfilerEmitter
     {
         private string _sourceText;
-        private List<(AstExpr Expression, int Id, string SymbolType)> _symbols = new List<(AstExpr Expression, int Id, string SymbolType)>();
+        private List<SymbolItem> _symbols = new List<SymbolItem>();
         private int _lastSymbolId = 0;
         
         // only include certain list items, i.e. "command" only profile command items
@@ -28,12 +28,12 @@ namespace VLispProfiler
             AddSymbol(null, id, symbolType);
         }
 
-        public (string Profile, string Symbol) Emit()
+        public ProfilerEmitOutput Emit()
         {
             var profileEmit = BuildProfiler();
             var symbolEmit = BuildSymbols();
 
-            return (profileEmit, symbolEmit);
+            return new ProfilerEmitOutput(profileEmit, symbolEmit);
         }
 
         // depends on BuildProfiler to fill out _symbols
@@ -45,8 +45,12 @@ namespace VLispProfiler
 
             map.Append("SymbolId,SymbolType,StartPos,EndPos,Preview");
 
-            foreach (var (expr, id, symbolType) in _symbols)
+            foreach (var item  in _symbols)
             {
+                var expr = item.Expression;
+                var id = item.Id;
+                var symbolType = item.SymbolType;
+
                 map.AppendLine();
 
                 var pos1 = FilePosition.Empty;
@@ -269,7 +273,7 @@ namespace VLispProfiler
 
             _lastSymbolId = id;
 
-            _symbols.Add((expr, id, symbolType));
+            _symbols.Add(new SymbolItem(expr, id, symbolType));
 
             return id;
         }
@@ -292,5 +296,39 @@ namespace VLispProfiler
             "~", "1+", "1-", "boole",
             "prin1", "princ", "print"
         };
+    }
+
+    public class SymbolItem
+    {
+        public AstExpr Expression { get; set; }
+        public int Id { get; set; }
+        public string SymbolType { get; set; }
+
+        public SymbolItem()
+        {
+        }
+
+        public SymbolItem(AstExpr expression, int id, string symbolType)
+        {
+            Expression = expression;
+            Id = id;
+            SymbolType = symbolType;
+        }
+    }
+
+    public class ProfilerEmitOutput
+    {
+        public string Profile { get; set; }
+        public string Symbol { get; set; }
+
+        public ProfilerEmitOutput()
+        {
+        }
+
+        public ProfilerEmitOutput(string profile, string symbol)
+        {
+            Profile = profile;
+            Symbol = symbol;
+        }
     }
 }

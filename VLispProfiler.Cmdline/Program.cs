@@ -70,7 +70,7 @@ namespace VLispProfiler.Cmdline
                 }
             }
 
-            var symbols = new List<(int, string)>();
+            var symbols = new List<PredefinedSymbolItem>();
             foreach (var sym in verb.PredefinedSymbols)
             {
                 var i = sym.IndexOf(':');
@@ -83,7 +83,7 @@ namespace VLispProfiler.Cmdline
                 {
                     var id = int.Parse(sym.Substring(0, i));
                     var symbol = sym.Substring(i + 1);
-                    symbols.Add((id, symbol));
+                    symbols.Add(new PredefinedSymbolItem(id, symbol));
                 }
             }
 
@@ -111,7 +111,7 @@ namespace VLispProfiler.Cmdline
                 }
 
                 foreach (var sym in symbols)
-                    profiler.AddPredefinedSymbol(sym.Item1, sym.Item2);
+                    profiler.AddPredefinedSymbol(sym.Id, sym.SymbolType);
 
                 var emit = profiler.Emit();
 
@@ -122,6 +122,22 @@ namespace VLispProfiler.Cmdline
             }
 
             return 0;
+        }
+
+        class PredefinedSymbolItem
+        {
+            public int Id { get; set; }
+            public string SymbolType { get; set; }
+
+            public PredefinedSymbolItem()
+            {
+            }
+
+            public PredefinedSymbolItem(int id, string symbolType)
+            {
+                Id = id;
+                SymbolType = symbolType;
+            }
         }
 
         [Verb("view", HelpText = "View Profiler Results.")]
