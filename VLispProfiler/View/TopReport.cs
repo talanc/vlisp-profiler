@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VLispProfiler.View
 {
-    public class Top
+    public class TopReport
     {
         private VLispPath _path;
         private TextWriter _output;
@@ -15,7 +15,7 @@ namespace VLispProfiler.View
         private TraceSummary _summary;
         private SymbolFile _symbolFile;
 
-        public Top(string filePath, TextWriter output, int top)
+        public TopReport(string filePath, TextWriter output, int top)
         {
             _path = new VLispPath(filePath);
             _output = output;

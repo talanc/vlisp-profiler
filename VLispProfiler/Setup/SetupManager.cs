@@ -8,14 +8,7 @@ using Microsoft.Win32;
 
 namespace VLispProfiler.Setup
 {
-    public interface ISetupManager
-    {
-        IEnumerable<SetupInstance> GetSetups();
-        void InstallSetup(SetupInstance setup);
-        void UninstallSetup(SetupInstance setup);
-    }
-
-    public class SetupManager //: ISetupManager
+    public class SetupManager : ISetupManager
     {
         private readonly string currentDir;
         private readonly string userProfilePath;
@@ -210,16 +203,44 @@ namespace VLispProfiler.Setup
                 return "%USERPROFILE%" + path.Substring(userProfilePath.Length).ToLowerInvariant();
             return path.ToLowerInvariant();
         }
-    }
 
-    public class SetupInstance
-    {
-        public string ReleaseName { get; set; }
-        public string VersionName { get; set; }
-        public string ProfileName { get; set; }
+        public bool IsInstalled(SetupInstance setup)
+        {
+            // General/ACAD
+            var acadPath = GetAcadPath(currentDir);
+            using (var generalKey = OpenProfileSubKey(setup, "General", writable: false))
+            {
+                var acadValue = (string)generalKey.GetValue("ACAD", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
 
-        public string FriendlyName => NameHelper.GetFriendlyName(ReleaseName);
+                // already present
+                if (acadValue.IndexOf(acadPath, StringComparison.InvariantCultureIgnoreCase) == -1)
+                    return false;
+            }
 
-        public string FriendNameWithProfile => NameHelper.GetFriendlyNameWithProfile(ReleaseName, ProfileName);
+            // Startup lisp file
+            var acadLspPath = GetAcadPath(profLspPath);
+            using (var startupKey = OpenProfileSubKey(setup, @"Dialogs\Appload\Startup", writable: false))
+            {
+                var numStartup = int.Parse((string)startupKey.GetValue("NumStartup"));
+
+                // find if already present
+                var found = false;
+                for (var i = 1; i <= numStartup; i++)
+                {
+                    var startupValue = (string)startupKey.GetValue($"{i}Startup", null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+
+                    if (acadLspPath.Equals(startupValue, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

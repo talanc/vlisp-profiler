@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using CommandLine;
 using VLispProfiler.Setup;
+using VLispProfiler.View;
 
 namespace VLispProfiler.Cmdline
 {
@@ -19,19 +20,26 @@ namespace VLispProfiler.Cmdline
             try
             {
 #endif
-            result = CommandLine.Parser.Default
+            if (args.Length == 0)
+            {
+                result = RunSetup(new SetupVerb() { Interactive = true });
+            }
+            else
+            {
+                result = CommandLine.Parser.Default
                 .ParseArguments<ProfileVerb, ViewVerb, SetupVerb>(args)
                 .MapResult(
                     (ProfileVerb opts) => RunProfile(opts),
                     (ViewVerb opts) => RunView(opts),
                     (SetupVerb opts) => RunSetup(opts),
                     errs => 1);
+            }
 #if RELEASE
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return 1;
+                result = 1;
             }
 #endif
 
@@ -163,7 +171,7 @@ namespace VLispProfiler.Cmdline
 
             if (verb.Top > 0)
             {
-                var top = new View.Top(filePath, Console.Out, verb.Top);
+                var top = new TopReport(filePath, Console.Out, verb.Top);
                 top.Display();
 
                 if (verb.PauseTop)
@@ -177,7 +185,7 @@ namespace VLispProfiler.Cmdline
 
             if (!string.IsNullOrEmpty(verb.Report))
             {
-                var report = new View.HtmlReport(filePath, verb.Report);
+                var report = new HtmlReport(filePath, verb.Report);
                 report.Generate();
                 Process.Start(verb.Report);
                 return 0;
@@ -191,7 +199,7 @@ namespace VLispProfiler.Cmdline
         [Verb("setup", HelpText = "Setup profiler in AutoCAD.")]
         class SetupVerb
         {
-            [Option('l', "list", HelpText = "List setups.", SetName = nameof(List))]
+            [Option('l', "list", HelpText = "List AutoCAD setups.", SetName = nameof(List))]
             public bool List { get; set; }
 
             [Option('i', "install", HelpText = "Install profiler script. Specify 'all' to install all setups, or specify by name, year, or profile name.", SetName = nameof(Install))]
@@ -199,6 +207,9 @@ namespace VLispProfiler.Cmdline
 
             [Option('u', "uninstall", HelpText = "Uninstall profiler script. Specify 'all' to uninstall all setups, or specify by name, year, or profile name.", SetName = nameof(Uninstall))]
             public IEnumerable<string> Uninstall { get; set; }
+
+            [Option("interactive", HelpText = "Interactive setup helper.")]
+            public bool Interactive { get; set; }
         }
 
         static int RunSetup(SetupVerb verb)
@@ -211,17 +222,19 @@ namespace VLispProfiler.Cmdline
 
             if (!setups.Any())
             {
-                Console.WriteLine("No setups found");
+                Console.WriteLine("No AutoCAD setups found. AutoCAD (Full) is required to be installed.");
                 return 1;
+            }
+
+            if (verb.Interactive)
+            {
+                RunInteractive(setupManager, setups);
+                return 0;
             }
 
             if (verb.List)
             {
-                Console.WriteLine("Setups found:");
-                foreach (var setup in setups)
-                {
-                    Console.WriteLine($"- {setup.FriendNameWithProfile}");
-                }
+                PrintSetups(setupManager, setups);
 
                 return 0;
             }
@@ -253,6 +266,114 @@ namespace VLispProfiler.Cmdline
             Console.WriteLine("no setup options specified");
 
             return 1;
+        }
+
+        static void PrintSetups(SetupManager setupManager, IEnumerable<SetupInstance> setups)
+        {
+            Console.WriteLine("Setups:");
+            var i = 1;
+            foreach (var setup in setups)
+            {
+                var installed = setupManager.IsInstalled(setup) ? "yes" : "no";
+                Console.WriteLine($"{i}) {setup.FriendNameWithProfile}, installed:{installed}");
+                i++;
+            }
+        }
+
+        static void RunInteractive(SetupManager setupManager, IEnumerable<SetupInstance> setups)
+        {
+            var sep = false;
+
+            while (true)
+            {
+                // print a input seperator on 2nd+ loop
+                if (sep)
+                {
+                    Console.WriteLine("---------------------------------");
+                    Console.WriteLine();
+                }
+                sep = true;
+
+                // show setups
+                PrintSetups(setupManager, setups);
+                Console.WriteLine();
+
+                // prompt for action
+                Console.WriteLine("Actions: install (i), uninstall (u), exit (x)");
+                Console.Write("Action? ");
+                var input = Console.ReadLine().Trim();
+
+                // action: exit
+                if (input.StartsWith("x", StringComparison.InvariantCultureIgnoreCase) ||
+                    input.StartsWith("ex", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    break;
+                }
+
+                // action: install / uninstall
+                string actionStr;
+                Action<SetupInstance> actionFunc;
+                if (input.StartsWith("i", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    actionStr = "Install";
+                    actionFunc = setupManager.InstallSetup;
+                }
+                else if (input.StartsWith("u", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    actionStr = "Uninstall";
+                    actionFunc = setupManager.UninstallSetup;
+                }
+                else
+                {
+                    // action: ???
+                    Console.WriteLine($"Unknown action: {input}");
+                    continue;
+                }
+
+                // print setups and prompt which to install/uninstall
+                PrintSetups(setupManager, setups);
+                Console.Write($"{actionStr} which setup (0 to go back, 'all' to select all)? ");
+                var input2 = Console.ReadLine().Trim();
+
+                // go back
+                if (input2 == "0")
+                {
+                    continue;
+                }
+
+                // find setup(s) specified
+                IEnumerable<SetupInstance> setupsSpecified;
+                if (input2.StartsWith("a", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // all
+                    setupsSpecified = setups;
+                }
+                else if (int.TryParse(input2, out var result))
+                {
+                    var resultIdx = result - 1;
+                    setupsSpecified = setups.Where((_, i) => i == resultIdx);
+                }
+                else
+                {
+                    Console.WriteLine("Please enter a number or specify 'all'.");
+                    continue;
+                }
+
+                // specified setup(s) not found
+                if (!setupsSpecified.Any())
+                {
+                    Console.WriteLine($"No setup(s) found for '{input2}'");
+                    continue;
+                }
+
+                // invoke setup action
+                foreach (var setup in setupsSpecified)
+                {
+                    Console.WriteLine($"{actionStr}ing {setup.FriendNameWithProfile}...");
+                    actionFunc.Invoke(setup);
+                    Console.WriteLine("Done.");
+                }
+            }
         }
     }
 }
