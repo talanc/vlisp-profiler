@@ -8,10 +8,16 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.5.0" />
+    <PackageReference Include="ILMerge" Version="3.0.29" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VLispProfiler\VLispProfiler.csproj" />
   </ItemGroup>
+
+  <!--<Target Name="ILMerge" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)ILMerge" />
+    <Exec Command="$(ILMergeConsolePath) /ndebug $(TargetPath) /out:$(OutDir)ILMerge\$(TargetFileName) $(OutDir)VLispProfiler.dll $(OutDir)CommandLine.dll" />
+  </Target>-->
 
 </Project>
