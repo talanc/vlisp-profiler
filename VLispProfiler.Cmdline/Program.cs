@@ -332,7 +332,8 @@ namespace VLispProfiler.Cmdline
 
                 // print setups and prompt which to install/uninstall
                 PrintSetups(setupManager, setups);
-                Console.Write($"{actionStr} which setup (0 to go back, 'all' to select all)? ");
+                Console.WriteLine($"{actionStr}: Select setup ('0' to go back, 'all' to {actionStr.ToLowerInvariant()} all setups)");
+                Console.Write("Select? ");
                 var input2 = Console.ReadLine().Trim();
 
                 // go back
