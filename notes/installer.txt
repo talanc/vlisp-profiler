@@ -1,5 +1,6 @@
 Registry locations for AutoCAD versions
 	https://www.cadforum.cz/cadforum_en/products.asp?prod=AutoCAD
+	https://jtbworld.com/autocad-information#AutoCAD-registry-details
 
 Example location
 	HKEY_CURRENT_USER\Software\Autodesk\AutoCAD\R18.1\ACAD-9001:409\Profiles\<<Unnamed Profile>>
