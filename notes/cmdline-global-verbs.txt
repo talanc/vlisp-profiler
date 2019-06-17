@@ -1,0 +1,4 @@
+see here:
+	https://github.com/commandlineparser/commandline/issues/335
+
+useful for --verbose, --pause-on-exit...
