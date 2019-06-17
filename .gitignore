@@ -289,3 +289,13 @@ __pycache__/
 
 # Visual Lisp application backup files
 *._ls
+
+# VLispProfiler notes profiler output
+notes/*.lsp.prof.lsp
+notes/*.lsp.symbols.txt
+notes/*.lsp.traces.txt
+notes/*.html
+
+# VLispProfiler installer publish files
+installer/publish/
+installer/vlisp-profiler-installer.exe
