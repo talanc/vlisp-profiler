@@ -20,20 +20,13 @@ namespace VLispProfiler.Cmdline
             try
             {
 #endif
-            if (args.Length == 0)
-            {
-                result = RunSetup(new SetupVerb() { Interactive = true });
-            }
-            else
-            {
-                result = CommandLine.Parser.Default
+            result = CommandLine.Parser.Default
                 .ParseArguments<ProfileVerb, ViewVerb, SetupVerb>(args)
                 .MapResult(
                     (ProfileVerb opts) => RunProfile(opts),
                     (ViewVerb opts) => RunView(opts),
                     (SetupVerb opts) => RunSetup(opts),
                     errs => 1);
-            }
 #if RELEASE
             }
             catch (Exception ex)
