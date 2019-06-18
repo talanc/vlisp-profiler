@@ -27,3 +27,23 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
+
+License notice for NSIS
+-----------------------
+
+Copyright (C) 1999-2019 Contributors
+
+More detailed copyright information can be found in the individual source
+code files. 
+
+All NSIS source code, plug-ins, documentation, examples, header files and
+graphics, with the exception of the compression modules and where otherwise
+noted, are licensed under the zlib/libpng license.
+
+The zlib compression module for NSIS is licensed under the zlib/libpng
+license.
+
+The bzip2 compression module for NSIS is licensed under the bzip2 license.
+
+The lzma compression module for NSIS is licensed under the Common Public
+License version 1.0.
