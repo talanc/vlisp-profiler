@@ -38,7 +38,7 @@
 	seconds (fix (rem (* time 24 60 60) 60))
 	milliseconds (fix (rem (* time 24 60 60 1000) 1000))
 	)
-
+  
   (strcat (if (> days 0) (strcat (rtos days) ".") "")
 	  (prof:str-pad-left (rtos hours) 2 "0")
 	  ":"
@@ -86,6 +86,13 @@
       (if path
 	(progn
 	  (setq func-sym (read (getstring nil "function name (empty for load exec): ")))
+
+	  (if (not (or (null func-sym) (vl-symbolp func-sym)))
+	    (progn
+	      (princ "invalid function name")
+	      (exit)
+	      )
+	    )
 	  
 	  (setq args (strcat "profile --sane -f " (prof:file-path path)))
 	  (if func-sym
@@ -100,26 +107,7 @@
     )
   )
 
-(defun prof:prof (path func-sym / func-sym-type path-prof path-trac args)
-  (cond
-    ((null func-sym)
-     nil ;; OK
-     )
-    ((vl-symbolp func-sym)
-     (setq func-sym-type (type (vl-symbol-value func-sym)))
-     (if (/= func-sym-type 'SUBR 'USUBR)
-       (progn
-	 (princ "func-sym must be nil or a function symbol")
-	 (exit)
-	 )
-       )
-     )
-    (t
-     (princ "func-sym must be nil or a function symbol")
-     (exit)
-     )
-    )
-  
+(defun prof:prof (path func-sym / path-prof path-trac args err)
   (setq path-prof (strcat path ".prof.lsp")
 	path-trac (strcat path ".traces.txt")
 	)
@@ -132,40 +120,73 @@
   
   (startapp (prof:get-exe) args)
   
-  ;; TODO, figure out a way to automate this
-  (getstring nil "type go!")
+  ;; TODO figure out a way to automate this
+  (getstring nil "Please wait for the Command Prompt to disappear and press Enter")
   
+  ;; open trace file
   (setq prof:file (open path-trac "w"))
   
-  (if func-sym
-    (progn
-      ;; Load
-      (prof:in "1")
-      (load path-prof)
-      (prof:out nil)
-      
-      ;; Run
-      (prof:in "2")
-      ((vl-symbol-value func-sym))
-      (prof:out nil)
-      )
-    (progn
-      ;; LoadRun
-      (prof:in "1")
-      (load path-prof)
-      (prof:out nil)
-      )
+  ;; profile!
+  (setq err (vl-catch-all-apply 'prof:go (list path-prof func-sym)))
+  
+  ;; close trace file
+  (close prof:file)
+  (setq prof:file nil)
+  
+  (cond
+    ;; fatal error
+    ((vl-catch-all-error-p err)
+     (princ (strcat "fatal error occured: " (vl-catch-all-error-message err)))
+     )
+    ;; error
+    ((= (type err) 'STR)
+     (princ err)
+     )
+    ;; otherwise, view profile
+    (t
+     (setq args (strcat "view -f " (prof:file-path path) " --top 10 --pause-top"))
+     (startapp (prof:get-exe) args)
+     )
     )
   
-  (if prof:file
-    (progn
-      (close prof:file)
-      (setq prof:file nil)
-      )
-    )
-  
-  (setq args (strcat "view -f " (prof:file-path path) " --top 10 --pause-top"))
-  (startapp (prof:get-exe) args)
-
   (princ)
+  )
+
+(defun prof:sym-is-sub (sym / sym-type)
+  (setq sym-type (type (vl-symbol-value sym)))
+  (or (= sym-type 'SUBR) (= sym-type 'USUBR))
+  )
+
+(defun prof:go (path-prof func-sym / ret err func-sym-type)
+  (setq ret nil
+	err nil
+	)
+  
+  ;; 1:Load (or 1:LoadRun if func-sym is nil)
+  (prof:in "1")
+  (setq err (vl-catch-all-apply 'load (list path-prof)))
+  (prof:out nil)
+  
+  (if (vl-catch-all-error-p err)
+    (setq ret (strcat "error loading file: " (vl-catch-all-error-message err)))
+    
+    ;; else, no error
+    (if func-sym
+      (if (null (prof:sym-is-sub func-sym))
+	(setq ret (strcat "function does not exist: " (vl-symbol-name func-sym)))
+	
+	;; 2:Run
+	(progn
+	  (prof:in "2")
+	  (setq err (vl-catch-all-apply func-sym nil))
+	  (if (vl-catch-all-error-p err)
+	    (setq ret (strcat "error running function " (vl-symbol-name func-sym) ": " (vl-catch-all-error-message err)))
+	    )
+	  (prof:out nil)
+	  )
+	)
+      )
+    )
+  
+  ret
   )
