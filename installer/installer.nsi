@@ -67,6 +67,15 @@ Section "Start Menu Shortcuts"
   
 SectionEnd
 
+Section "Samples (copied to Documents)"
+
+  SetOutPath "$DOCUMENTS\VLispProfiler Samples"
+
+  File "samples\sample-file.LSP"
+  File "samples\sample-func.LSP"
+
+SectionEnd
+
 ;--------------------------------
 ; Uninstaller
 
@@ -90,11 +99,16 @@ Section "Uninstall"
   ; Remove uninstaller
   Delete "$INSTDIR\uninstall.exe"
 
-  ; Remove shortcuts, if any
+  ; Remove shortcuts (if any)
   Delete "$SMPROGRAMS\VLispProfiler\*.*"
-
-  ; Remove directories used
   RMDir "$SMPROGRAMS\VLispProfiler"
+
+  ; Remove samples (if any)
+  Delete "$DOCUMENTS\VLispProfiler Samples\sample-file.LSP"
+  Delete "$DOCUMENTS\VLispProfiler Samples\sample-func.LSP"
+  RMDir "$DOCUMENTS\VLispProfiler Samples"
+
+  ; Remove install dir
   RMDir "$INSTDIR"
 
   ; Remove registry entries
