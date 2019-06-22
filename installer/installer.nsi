@@ -1,5 +1,5 @@
 ; Installer name
-Name "VLisp Profiler"
+Name "VLispProfiler"
 
 ; Installer exe
 OutFile "vlisp-profiler-installer.exe"
@@ -23,7 +23,7 @@ UninstPage instfiles
 ;--------------------------------
 ; Installer
 
-Section "VLisp Profiler (required)"
+Section "VLispProfiler (required)"
 
   SectionIn RO
 
@@ -55,9 +55,9 @@ SectionEnd
 
 Section "Start Menu Shortcuts"
 
-  CreateDirectory "$SMPROGRAMS\VLisp Profiler"
-  CreateShortcut "$SMPROGRAMS\VLisp Profiler\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortcut "$SMPROGRAMS\VLisp Profiler\Setup.lnk" "$INSTDIR\vlisp-profiler.exe" "setup --interactive" "$INSTDIR\vlisp-profiler.exe" 0
+  CreateDirectory "$SMPROGRAMS\VLispProfiler"
+  CreateShortcut "$SMPROGRAMS\VLispProfiler\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortcut "$SMPROGRAMS\VLispProfiler\Setup.lnk" "$INSTDIR\vlisp-profiler.exe" "setup --interactive" "$INSTDIR\vlisp-profiler.exe" 0
   
 SectionEnd
 
@@ -85,10 +85,10 @@ Section "Uninstall"
   Delete "$INSTDIR\uninstall.exe"
 
   ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\VLisp Profiler\*.*"
+  Delete "$SMPROGRAMS\VLispProfiler\*.*"
 
   ; Remove directories used
-  RMDir "$SMPROGRAMS\VLisp Profiler"
+  RMDir "$SMPROGRAMS\VLispProfiler"
   RMDir "$INSTDIR"
 
 SectionEnd
