@@ -94,12 +94,6 @@
 	      )
 	    )
 	  
-	  (setq args (strcat "profile --sane -f " (prof:file-path path)))
-	  (if func-sym
-	    (setq args (strcat args " -s 1:Load 2:Run"))
-	    (setq args (strcat args " -s 1:LoadRun"))
-	    )
-	  
 	  (prof:prof path func-sym)
 	  )
 	)
