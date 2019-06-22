@@ -82,7 +82,7 @@ SectionEnd
 Section "Uninstall"
 
   ; Uninstall VLispProfiler setups
-  ExecWait '"$INSTDIR\vlisp-profiler.exe" setup --install all'
+  ExecWait '"$INSTDIR\vlisp-profiler.exe" setup --uninstall all'
 
   ; Remove files
   Delete "$INSTDIR\CommandLine.dll"
