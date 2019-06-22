@@ -7,6 +7,9 @@ OutFile "vlisp-profiler-installer.exe"
 ; Installer default directory
 InstallDir $LOCALAPPDATA\VLispProfiler
 
+; Installer registry location
+InstallDirRegKey HKCU "Software\VLispProfiler" "InstallLocation"
+
 ; Installer requires user only (per user install anyway)
 RequestExecutionLevel user
 
@@ -44,6 +47,9 @@ Section "VLispProfiler (required)"
   
   ; Create VLispProfiler Setup shortcut
   CreateShortcut "$INSTDIR\Setup.lnk" "$INSTDIR\vlisp-profiler.exe" "setup --interactive" "$INSTDIR\vlisp-profiler.exe" 0
+
+  ; Registry install location
+  WriteRegStr HKCU "Software\VLispProfiler" "InstallLocation" $INSTDIR
 
   ; Uninstaller
   WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -90,5 +96,9 @@ Section "Uninstall"
   ; Remove directories used
   RMDir "$SMPROGRAMS\VLispProfiler"
   RMDir "$INSTDIR"
+
+  ; Remove registry entries
+  DeleteRegValue HKCU "Software\VLispProfiler" "InstallLocation"
+  DeleteRegKey /ifempty HKCU "Software\VLispProfiler"
 
 SectionEnd
