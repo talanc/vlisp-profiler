@@ -1,2 +1,2 @@
 # NSIS
-installer/nsis linguist-vendored
+installer/nsis/** linguist-vendored
