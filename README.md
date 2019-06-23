@@ -8,5 +8,19 @@ it's time and guide where you should optimize.
 
 ## Get Started
 
-1. Download and run the installer (see [Releases](https://github.com/talanc/vlisp-profiler/releases)).
-2. Open AutoCAD, type `prof`, select a LISP file to profile, (optional) enter in a command to profile, and type `go`.
+### Installing
+Download and run the latest installer. See [Releases](https://github.com/talanc/vlisp-profiler/releases)).
+![Install](docs/vlisp-profiler-install.gif)
+
+### Profiling
+1. Open AutoCAD
+2. Type `prof`
+3. Select a LISP file to profile.
+4. Type in an entry function, leave empty and press `Enter` if the file doesn't have one.
+5. Observe profiling results.
+
+#### Profiling the whole file
+![Profile file](docs/vlisp-profiler-run-file.gif)
+
+#### Profiling from entry function
+![Profile function](docs/vlisp-profiler-run-func.gif)
