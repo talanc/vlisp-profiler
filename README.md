@@ -10,6 +10,7 @@ it's time and guide where you should optimize.
 
 ### Installing
 Download and run the latest installer. See [Releases](https://github.com/talanc/vlisp-profiler/releases)).
+
 ![Install](docs/vlisp-profiler-install.gif)
 
 ### Profiling
