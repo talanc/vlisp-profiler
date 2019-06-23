@@ -1,13 +1,78 @@
 (setq prof:file nil)
 (setq prof:symbols nil)
 (setq prof:indent "")
-(setq prof:exe "vlisp-profiler.exe")
 
-(defun prof:get-exe ()
-  (if (and prof:exe (findfile prof:exe))
-    prof:exe
-    (setq prof:exe (getfiled "Find vlisp-profiler.exe" "vlisp-profiler.exe" "exe" 0))
+(setq prof:exe nil)
+(setq prof:exe-name "vlisp-profiler.exe")
+(setq prof:netload nil)
+
+(defun prof:get-exe ( / reg ff)
+  (if (null prof:exe)
+    (progn
+      ;; findfile
+      (if (null prof:exe)
+	(if (setq ff (findfile prof:exe-name))
+	  (setq prof:exe ff)
+	  )
+	)
+      
+      ;; registry install location
+      (if (null prof:exe)
+	(if (setq reg (vl-registry-read "HKEY_CURRENT_USER\\Software\\VLispProfiler" "InstallLocation"))
+	  (setq prof:exe (strcat reg prof:exe-name))
+	  )
+	)
+      
+      ;; manual lookup
+      (if (null prof:exe)
+	(setq prof:exe (getfiled "Find vlisp-profiler.exe" "vlisp-profiler.exe" "exe" 0))
+	)
+      
+      (if (null prof:exe)
+	(prof:exit (strcat "Could not find " prof:exe-name))
+	)
+      )
     )
+  
+  (if (null prof:netload)
+    (progn
+      (if (findfile "prof.dll")
+	(command "netload" "prof.dll") ;; hopefully contains vlisp function named prof:elapsed
+	)
+      (setq prof:netload t)
+      )
+    )
+  
+  prof:exe
+  )
+
+(defun prof:exit (msg)
+  (princ msg)
+  (exit)
+  )
+
+(defun prof:wait-file-exists (path freq-ms num / left)
+  (if (null (findfile path))
+    (progn
+      (setq left num)
+      (while (> left 0)
+	(setq left (1- left))
+	
+	(cond
+	  ((findfile path)
+	   (setq left 0)
+	   )
+	  ((= left 0)
+	   (setq path nil)
+	   )
+	  (t
+	   (command "delay" freq-ms)
+	   )
+	  )
+	)
+      )
+    )
+  path
   )
 
 (defun prof:file-path (path)
@@ -50,10 +115,6 @@
 	  )
   )
 
-(if (findfile "prof.dll")
-  (command "netload" "prof.dll") ;; hopefully contains vlisp function named prof:elapsed
-  )
-
 (defun prof:write-trace (trac)
   (write-line (strcat prof:indent
 		      (car prof:symbols) "," trac "," (prof:elapsed)
@@ -80,42 +141,58 @@
   )
 
 (defun c:prof ( / path func-sym)
-  (if (prof:get-exe) ;; sets prof:exe
-    (progn
-      (setq path (getfiled "Select LISP file" "" "lsp" 0))
-      (if path
-	(progn
-	  (setq func-sym (read (getstring nil "function name (empty for load exec): ")))
-
-	  (if (not (or (null func-sym) (vl-symbolp func-sym)))
-	    (progn
-	      (princ "invalid function name")
-	      (exit)
-	      )
-	    )
-	  
-	  (prof:prof path func-sym)
-	  )
-	)
-      )
+  (prof:get-exe) ;; sets prof:exe
+  
+  (setq path (getfiled "Select LISP file" "" "lsp" 0))
+  (if (null path) (exit))
+  
+  (setq func-sym (read (getstring nil "function name (empty for load exec): ")))
+  
+  (if (not (or (null func-sym) (vl-symbolp func-sym)))
+    (prof:exit "invalid function name")
     )
+  
+  (prof:prof path func-sym)
   )
 
-(defun prof:prof (path func-sym / path-prof path-trac args err)
+(defun prof:prof (path func-sym / path-prof path-trac path-comp path-erro args-sym args err)
+  ;; profile files
   (setq path-prof (strcat path ".prof.lsp")
 	path-trac (strcat path ".traces.txt")
+	path-comp (strcat path ".complete.txt")
+	path-erro (strcat path ".error.txt")
 	)
-  
-  (setq args (strcat "profile -f " (prof:file-path path)))
-  (if func-sym
-    (setq args (strcat args " -s 1:Load 2:Run"))
-    (setq args (strcat args " -s 1:LoadRun"))
+
+  ;; delete files
+  (foreach value (list path-prof path-trac path-comp path-erro)
+    (if (findfile value)
+      (vl-file-delete value)
+      )
     )
-  
+
+  ;; generate profile files
+  (if func-sym
+    (setq args-sym "-s 1:Load 2:Run")
+    (setq args-sym "-s 1:LoadRun")
+    )
+  (setq args (strcat "profile" " "
+		     "-f " (prof:file-path path) " "
+		     args-sym " "
+		     "--complete-file " (prof:file-path path-comp) " "
+		     "--error-file " (prof:file-path path-erro)
+		     ))
   (startapp (prof:get-exe) args)
-  
-  ;; TODO figure out a way to automate this
-  (getstring nil "Please wait for the Command Prompt to disappear and press Enter")
+
+  ;; wait 30 seconds for profile command to complete
+  (setq err (prof:wait-file-exists path-comp 1000 30))
+  (if (null err)
+    (prof:exit "generate timeout")
+    )
+
+  ;; any errors with command?
+  (if (findfile path-erro)
+    (prof:exit "error with command, see error.txt for details")
+    )
   
   ;; open trace file
   (setq prof:file (open path-trac "w"))

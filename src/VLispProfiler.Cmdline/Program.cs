@@ -42,23 +42,59 @@ namespace VLispProfiler.Cmdline
         [Verb("profile", HelpText = "Generate Profile LISP file and Symbols file.")]
         class ProfileVerb
         {
-            [Option('f', "file", Required = true, HelpText = "LISP Files")]
+            [Option('f', "file", Required = true, HelpText = "LISP Files.")]
             public IEnumerable<string> LispFiles { get; set; }
 
-            [Option('i', "include", HelpText = "Includes (i.e. specify 'command' to only profile command calls)")]
+            [Option('i', "include", HelpText = "Includes (i.e. specify 'command' to only profile command calls).")]
             public IEnumerable<string> Includes { get; set; }
 
-            [Option('e', "exclude", HelpText = "Excludes (i.e. specify 'command' to ignore command calls")]
+            [Option('e', "exclude", HelpText = "Excludes (i.e. specify 'command' to ignore command calls).")]
             public IEnumerable<string> Excludes { get; set; }
 
-            [Option('s', "symbol", HelpText = "Specify a pre-defined symbol as ID:Type (i.e. 1:Load)")]
+            [Option('s', "symbol", HelpText = "Specify a pre-defined symbol as ID:Type (i.e. 1:Load).")]
             public IEnumerable<string> PredefinedSymbols { get; set; }
 
-            [Option("no-sane-excludes", HelpText = "Disables sane excludes (arithmetic, logical, display functions)")]
+            [Option("no-sane-excludes", HelpText = "Disables sane excludes (arithmetic, logical, display functions).")]
             public bool NoSaneExcludes { get; set; }
+
+            [Option("complete-file", HelpText = "Creates a file at this location when operation is complete. Use this switch when you cannot control the process.")]
+            public string CompleteFile { get; set; }
+
+            [Option("error-file", HelpText = "Creates a file at this location if an error occurs. Use this switch when you cannot control the process.")]
+            public string ErrorFile { get; set; }
         }
 
         static int RunProfile(ProfileVerb verb)
+        {
+            try
+            {
+                return RunProfileInner(verb);
+            }
+            catch (Exception ex)
+            {
+                if (verb.ErrorFile != null)
+                {
+
+                    try
+                    {
+                        File.WriteAllText(verb.ErrorFile, ex.ToString());
+                    }
+                    catch (Exception ex2)
+                    {
+                        Console.WriteLine("Could not write error file:");
+                        Console.WriteLine(ex2.ToString());
+                    }
+                }
+                throw;
+            }
+            finally
+            {
+                if (verb.CompleteFile != null)
+                    File.WriteAllText(verb.CompleteFile, "Done.");
+            }
+        }
+
+        static int RunProfileInner(ProfileVerb verb)
         {
             var err = 0;
 
@@ -116,10 +152,8 @@ namespace VLispProfiler.Cmdline
 
                 var emit = profiler.Emit();
 
-                var paths = new VLispPath(filePath);
-
-                File.WriteAllText(paths.SymbolPath, emit.Symbol);
-                File.WriteAllText(paths.FileProfilerPath, emit.Profile);
+                File.WriteAllText(vlispPath.SymbolPath, emit.Symbol);
+                File.WriteAllText(vlispPath.FileProfilerPath, emit.Profile);
             }
 
             return 0;
