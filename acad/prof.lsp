@@ -19,7 +19,7 @@
       ;; registry install location
       (if (null prof:exe)
 	(if (setq reg (vl-registry-read "HKEY_CURRENT_USER\\Software\\VLispProfiler" "InstallLocation"))
-	  (setq prof:exe (strcat reg prof:exe-name))
+	  (setq prof:exe (strcat reg "\\" prof:exe-name))
 	  )
 	)
       
