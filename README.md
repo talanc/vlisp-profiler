@@ -8,6 +8,8 @@ it's time and guide where you should optimize.
 
 **Requires AutoCAD 2011+ Full (not LT) to use.**
 
+[![Build Status](https://dev.azure.com/talancopeland/vlisp-profiler/_apis/build/status/talanc.vlisp-profiler?branchName=master)](https://dev.azure.com/talancopeland/vlisp-profiler/_build/latest?definitionId=2&branchName=master)
+
 ## Features
 - Easy to use installer that automatically sets up AutoCAD.
 - One simple to use AutoCAD command: `prof`.
