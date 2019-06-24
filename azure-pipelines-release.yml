@@ -1,0 +1,13 @@
+#
+# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details on this file.
+#
+
+trigger:
+- none
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- script: cd installer; make-installer.cmd
+  displayName: 'make-installer.cmd'
