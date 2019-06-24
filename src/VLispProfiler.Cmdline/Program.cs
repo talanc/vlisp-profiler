@@ -204,8 +204,8 @@ namespace VLispProfiler.Cmdline
                 if (verb.PauseTop)
                 {
                     Console.WriteLine();
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
+                    Console.Write("Press Enter to continue...: ");
+                    Console.ReadLine();
                 }
                 return 0;
             }
