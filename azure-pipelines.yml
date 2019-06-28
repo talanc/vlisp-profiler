@@ -15,5 +15,11 @@ steps:
 - script: dotnet build src --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet test src\VLispProfiler.Tests
+- script: dotnet test src\VLispProfiler.Tests --logger trx
   displayName: 'dotnet test'
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: "**/*.trx"
