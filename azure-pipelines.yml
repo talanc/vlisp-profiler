@@ -25,5 +25,5 @@ steps:
     testRunner: VSTest
     testResultsFiles: "**/*.trx"
 
-- script: cd installer && make-installer.cmd
+- script: cd && dir && cd installer && cd && dir && make-installer.cmd
   displayName: 'building installer'
