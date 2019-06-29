@@ -15,11 +15,15 @@ steps:
 - script: dotnet build src --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet test src\VLispProfiler.Tests --configuration $(buildConfiguration) --logger trx --collect "Code coverage"
+- script: dotnet test src\*Tests --configuration $(buildConfiguration) --logger trx --collect "Code coverage"
   displayName: 'dotnet test'
 
 - task: PublishTestResults@2
+  displayName: 'publish test results'
   condition: succeededOrFailed()
   inputs:
     testRunner: VSTest
     testResultsFiles: "**/*.trx"
+
+- script: cd installer && make-installer.cmd
+  displayName: 'building installer'
