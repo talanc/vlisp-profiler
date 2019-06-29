@@ -15,7 +15,7 @@ steps:
 - script: dotnet build src --configuration $(buildConfiguration)
   displayName: 'dotnet build'
 
-- script: dotnet test src --configuration $(buildConfiguration) --logger trx --collect "Code coverage"
+- script: dotnet test src\VLispProfiler.Tests --configuration $(buildConfiguration) --logger trx --collect "Code coverage"
   displayName: 'dotnet test'
 
 - task: PublishTestResults@2
@@ -25,5 +25,8 @@ steps:
     testRunner: VSTest
     testResultsFiles: "**/*.trx"
 
-- script: cd && dir && cd installer && cd && dir && make-installer.cmd
-  displayName: 'building installer'
+- script: make-installer "$(Build.ArtifactStagingDirectory)\vlisp-profiler-installer.exe" $(buildConfiguration)
+  displayName: 'make installer'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'publish installer'
