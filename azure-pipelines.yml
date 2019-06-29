@@ -25,7 +25,7 @@ steps:
     testRunner: VSTest
     testResultsFiles: "**/*.trx"
 
-- script: make-installer "$(Build.ArtifactStagingDirectory)\vlisp-profiler-installer.exe" $(buildConfiguration)
+- script: installer\make-installer.cmd "$(Build.ArtifactStagingDirectory)\vlisp-profiler-installer.exe" $(buildConfiguration)
   displayName: 'make installer'
 
 - task: PublishBuildArtifacts@1
