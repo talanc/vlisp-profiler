@@ -1,8 +1,11 @@
 ; Installer name
 Name "VLispProfiler"
 
-; Installer exe
-OutFile "vlisp-profiler-installer.exe"
+; Installer exe, specify OUTFILE via makensis arg "/DOutFile=installer.exe"
+!ifndef OUTFILE
+  !define OUTFILE "vlisp-profiler-installer.exe"
+!endif
+OutFile "${OUTFILE}"
 
 ; Installer default directory
 InstallDir $LOCALAPPDATA\VLispProfiler
