@@ -30,13 +30,3 @@ steps:
 
 - task: PublishBuildArtifacts@1
   displayName: 'publish installer'
-
-- task: GitHubRelease@0
-  displayName: 'github release installer'
-  inputs:
-    gitHubConnection: 'github connection 1'
-    action: edit
-    tagSource: manual
-    tag: 'preview'
-    title: 'Latest Preview Installer'
-    isPreRelease: true
